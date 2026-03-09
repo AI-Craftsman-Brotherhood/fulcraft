@@ -100,7 +100,7 @@ dependencies {
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj.core)
     testImplementation("com.tngtech.archunit:archunit:1.4.1")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+    testImplementation("com.squareup.okhttp3:mockwebserver:5.3.2")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.mockito:mockito-core:5.11.0")
