@@ -130,7 +130,7 @@ dependencies {
     implementation(libs.json.schema.validator)
     // Lanterna for TUI support
     implementation("com.googlecode.lanterna:lanterna:3.1.1")
-    compileOnly("com.github.spotbugs:spotbugs-annotations:4.8.3")
+    compileOnly("com.github.spotbugs:spotbugs-annotations:4.9.8")
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
 }
