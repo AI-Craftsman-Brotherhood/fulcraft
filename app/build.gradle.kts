@@ -129,7 +129,7 @@ dependencies {
     implementation(libs.smallrye.config)
     implementation(libs.json.schema.validator)
     // Lanterna for TUI support
-    implementation("com.googlecode.lanterna:lanterna:3.1.1")
+    implementation("com.googlecode.lanterna:lanterna:3.1.3")
     compileOnly("com.github.spotbugs:spotbugs-annotations:4.8.3")
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
