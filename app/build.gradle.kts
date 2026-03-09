@@ -16,7 +16,7 @@ plugins {
     id("pmd")
     id("jacoco")
     id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("org.owasp.dependencycheck") version "9.2.0"
+    id("org.owasp.dependencycheck") version "12.2.0"
     id("eclipse")
     signing
 }
