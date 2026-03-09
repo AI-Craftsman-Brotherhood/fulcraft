@@ -1,0 +1,10 @@
+com.craftsmanbro.fulcraft.ui.cli.command.AnalyzeCommand
+com.craftsmanbro.fulcraft.ui.cli.command.AnalysisReportCommand
+com.craftsmanbro.fulcraft.ui.cli.command.TutCommand
+com.craftsmanbro.fulcraft.ui.cli.command.RunCommand
+com.craftsmanbro.fulcraft.ui.cli.command.ResumeCommand
+com.craftsmanbro.fulcraft.ui.cli.command.DocumentCommand
+com.craftsmanbro.fulcraft.ui.cli.command.ExploreCommand
+com.craftsmanbro.fulcraft.ui.cli.command.StepsCommand
+com.craftsmanbro.fulcraft.ui.cli.command.InitCommand
+com.craftsmanbro.fulcraft.ui.cli.command.InitCiCommand

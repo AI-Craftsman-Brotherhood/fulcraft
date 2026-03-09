@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "AppName": "fulcraft",
+  "version": "1.0.0",
+  "project": {
+    "id": "proj_00123",
+    "root": "/path/to/your/project",
+    "docs_output": ".ful/runs/latest/docs",
+    "repo_url": "https://github.com/example/repo.git",
+    "commit": "HEAD",
+    "build_tool": "gradle",
+    "build_command": "./gradlew test",
+    "exclude_paths": [
+      "src/test",
+      "build",
+      "target"
+    ],
+    "include_paths": [
+      "src/main/java"
+    ]
+  },
+  "pipeline": {
+    "stages": [
+      "analyze",
+      "generate",
+      "report",
+      "document",
+      "explore"
+    ]
+  },
+  "output": {
+    "format": {
+      "tasks": "jsonl",
+      "report": "markdown"
+    }
+  },
+  "cli": {
+    "color": "auto",
+    "interactive": {
+      "enabled": true
+    }
+  },
+  "analysis": {
+    "spoon": {
+      "no_classpath": false
+    },
+    "dump_file_list": false,
+    "source_root_mode": "AUTO",
+    "source_root_paths": [
+      "src/main/java",
+      "app/src/main/java"
+    ],
+    "source_charset": "UTF-8",
+    "classpath": {
+      "mode": "AUTO"
+    },
+    "external_config_resolution": false,
+    "enable_interprocedural_resolution": false,
+    "interprocedural_callsite_limit": 20,
+    "debug_dynamic_resolution": false,
+    "experimental_candidate_enum": false
+  },
+  "selection_rules": {
+    "class_min_loc": 10,
+    "class_min_method_count": 1,
+    "method_min_loc": 1,
+    "method_max_loc": 1000,
+    "max_targets": 200,
+    "max_methods_per_class": 5,
+    "exclude_getters_setters": false,
+    "max_methods_per_package": null,
+    "exclude_annotations": [
+      "Deprecated",
+      "Generated"
+    ],
+    "deprioritize_annotations": [
+      "Experimental"
+    ],
+    "complexity": {
+      "max_cyclomatic": 20,
+      "strategy": "warn",
+      "expected_tests_per_complexity": 1.5,
+      "max_expected_tests": 20
+    }
+  },
+  "llm": {
+    "provider": "openai",
+    "allowed_providers": [
+      "openai",
+      "azure-openai"
+    ],
+    "allowed_models": {
+      "openai": [
+        "gpt-4o",
+        "gpt-4o-mini"
+      ],
+      "azure-openai": [
+        "gpt-4o"
+      ]
+    },
+    "max_retries": 3,
+    "fix_retries": 2,
+    "model_name": "gpt-4o",
+    "api_key": "${OPENAI_API_KEY}",
+    "url": "https://api.openai.com/v1",
+    "azure_deployment": "",
+    "azure_api_version": "",
+    "vertex_project": "",
+    "vertex_location": "",
+    "vertex_publisher": "google",
+    "vertex_model": "",
+    "aws_access_key_id": "",
+    "aws_secret_access_key": "",
+    "aws_session_token": "",
+    "aws_region": "",
+    "connect_timeout": 30,
+    "request_timeout": 300,
+    "max_response_length": 200000,
+    "custom_headers": {
+      "X-FUL-ORG": "example"
+    },
+    "fallback_stub_enabled": false,
+    "javac_validation": true,
+    "retry_initial_delay_ms": 500,
+    "retry_backoff_multiplier": 2.0,
+    "rate_limit_qps": 1.0,
+    "circuit_breaker_threshold": 5,
+    "circuit_breaker_reset_ms": 60000,
+    "deterministic": true,
+    "seed": 42,
+    "system_message": "Generate robust and deterministic JUnit tests.",
+    "smart_retry": {
+      "same_error_max_retries": 1,
+      "total_retry_budget_per_task": 3,
+      "non_recoverable_max_retries": 1
+    }
+  },
+  "audit": {
+    "enabled": false,
+    "log_path": ".ful/audit.jsonl",
+    "include_raw": false
+  },
+  "quota": {
+    "max_tasks": 500,
+    "max_llm_calls": 2000,
+    "on_exceed": "warn"
+  },
+  "context_awareness": {
+    "enabled": true,
+    "test_dirs": [
+      "src/test/java"
+    ],
+    "include_globs": [
+      "**/*Test.java"
+    ],
+    "exclude_globs": [
+      "**/*IT.java",
+      "**/*IntegrationTest.java",
+      "**/integration/**",
+      "**/e2e/**",
+      "**/benchmark/**"
+    ],
+    "max_files": 200,
+    "max_injected_chars": 1200,
+    "exclude_generated_tests": true,
+    "generated_output_dir": "src/test/java"
+  },
+  "generation": {
+    "marker": {
+      "enabled": true,
+      "tag": "FUL:GENERATED_TEST",
+      "scan_first_lines": 20
+    }
+  },
+  "governance": {
+    "external_transmission": "allow",
+    "redaction": {
+      "mode": "enforce",
+      "denylist_path": ".ful/redaction/denylist.txt",
+      "allowlist_path": ".ful/redaction/allowlist.txt",
+      "detectors": [
+        "regex",
+        "dictionary"
+      ],
+      "mask_threshold": 0.6,
+      "block_threshold": 0.9,
+      "ml_endpoint_url": "http://localhost:8080/redact"
+    }
+  },
+  "execution": {
+    "per_task_isolation": true,
+    "logs_root": ".ful/runs",
+    "runtime_fix_retries": 2,
+    "flaky_reruns": 0,
+    "unresolved_policy": "skip",
+    "test_stability_policy": "standard"
+  },
+  "quality_gate": {
+    "enabled": true,
+    "coverage_threshold": 0.8,
+    "branch_coverage_threshold": 0.7,
+    "block_blocker_findings": true,
+    "block_critical_findings": true,
+    "max_major_findings": 0,
+    "allow_warnings": true,
+    "apply_to_new_code_only": false,
+    "min_pass_rate": 0.9,
+    "min_compile_rate": 0.95,
+    "coverage_tool": "jacoco",
+    "static_analysis_tools": [
+      "spotbugs",
+      "pmd",
+      "checkstyle"
+    ],
+    "coverage_report_path": "build/reports/jacoco/test/jacocoTestReport.xml",
+    "static_analysis_report_paths": [
+      "build/reports/spotbugs/main.xml",
+      "build/reports/pmd/main.xml",
+      "build/reports/checkstyle/main.xml"
+    ]
+  }
+}

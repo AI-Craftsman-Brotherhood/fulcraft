@@ -1,0 +1,17 @@
+# Remaining JUnit References
+
+Generated: 2026-03-10T00:39:54+09:00
+
+These references still exist after the proprietary JUnit feature group was excluded.
+They are the main follow-up targets before publishing the copied workspace.
+Docs scope is limited to direct children under docs/.
+
+docs/architecture.md:22:- **Plugins**: `plugins/analysis`, `plugins/reporting`, `plugins/document`, `plugins/exploration`, `plugins/junit`, `plugins/noop`
+docs/architecture.md:155:3. **Pipeline**: 登録されたノード `Stage`（`WorkflowNodeStage`）を依存順（DAG）で実行。トップレベルの公式ステップラベルは `analyze` -> `generate` -> `report` -> `document` -> `explore` を維持しつつ、実体は workflow ノードとして登録されます。`select` と `brittle_check` は `generate` の alias として扱われ、対応する workflow ノード（例: `junit-select`, `junit-brittle-check`）で実行されます。
+docs/config.md:250:| `stages` | List[String] | 互換デフォルト | 実行ステージ (`analyze`, `generate`, `report`, `document`, `explore`)。`select` / `brittle_check` は `generate` のターゲット alias として扱われ、workflow ノード（例: `junit-select` / `junit-brittle-check`）で実行されます。`document` / `explore` はオプションで、既定値（`analyze`, `generate`, `report`）には含まれません |
+docs/plugin-architecture.md:164:- `select` (`junit-select`) depends on `analyze`
+docs/plugin-architecture.md:165:- `generate` (`junit-generate`) depends on `select`
+docs/plugin-architecture.md:166:- `brittle_check` (`junit-brittle-check`) depends on `generate`
+docs/security-scanning.md:70:`com.craftsmanbro.fulcraft.kernel.pipeline.interceptor.SecurityFilterInterceptor` は選定フェーズ (`SELECT`) の PRE フックで動作します。`SELECT` は `generate` ターゲットとして workflow ノード（例: `junit-select`）内で実行されるため、実行タイミングはプラグイン内の `SelectStage` 呼び出し前になります。
+docs/test-quality-guidelines.md:64:./gradlew :app:run --args="junit-report -p <project-root> --run-id <runId> --format json"
+docs/test-quality-guidelines.md:67:- `junit-report` は既存 run の成果物（tasks/results/summary）から集計レポートを生成する

@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+#
+# FUL Development CLI wrapper script
+# This script runs the JAR built by './gradlew :app:shadowJar'
+#
+# Usage: ./scripts/ful [options] [command]
+#
+
+set -euo pipefail
+
+# Resolve script directory (handles symlinks)
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+    DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+
+# Check Java availability
+if ! command -v java &> /dev/null; then
+    echo "❌ Error: Java is not installed or not in PATH" >&2
+    exit 1
+fi
+
+JAVA_VERSION=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2 | cut -d'.' -f1)
+if [ "$JAVA_VERSION" -lt 21 ] 2>/dev/null; then
+    echo "⚠️  Warning: Java 21 or later is recommended. Found version $JAVA_VERSION" >&2
+fi
+
+# Find the JAR file
+JAR_DIR="${SCRIPT_DIR}/../app/build/libs"
+JAR_PATH="${JAR_DIR}/ful.jar"
+
+if [[ ! -f "$JAR_PATH" ]]; then
+    VERSIONED_JAR=$(ls -1t "${JAR_DIR}"/ful-*.jar 2>/dev/null | head -n 1)
+    if [[ -n "$VERSIONED_JAR" ]]; then
+        JAR_PATH="$VERSIONED_JAR"
+    fi
+fi
+
+if [[ ! -f "$JAR_PATH" ]]; then
+    echo "❌ Error: ful.jar not found at $JAR_PATH" >&2
+    echo "   Run './gradlew :app:shadowJar' to build the JAR first." >&2
+    exit 1
+fi
+
+# Default JVM options (can be overridden via FUL_JAVA_OPTS)
+JAVA_OPTS="${FUL_JAVA_OPTS:-}"
+
+# Execute the JAR
+exec java $JAVA_OPTS -jar "$JAR_PATH" "$@"

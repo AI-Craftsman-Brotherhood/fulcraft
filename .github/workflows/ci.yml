@@ -1,0 +1,148 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 3 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Spotless check
+        run: ./gradlew --no-daemon :app:spotlessCheck
+
+      - name: Checkstyle
+        run: ./gradlew --no-daemon :app:checkstyleMain
+
+      - name: SpotBugs
+        run: ./gradlew --no-daemon :app:spotbugsMain :app:spotbugsTest
+
+      - name: PMD
+        run: ./gradlew --no-daemon :app:pmdMain :app:pmdTest
+
+      - name: Compare static analysis baseline
+        run: bash scripts/ci/compare_static_analysis.sh --fail-on-new
+
+      - name: Compare suppression baseline
+        run: bash scripts/ci/compare_suppression_baseline.sh --fail-on-new --current-output reports/suppressions_current.json
+
+      - name: Upload static analysis reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: static-analysis-reports
+          path: |
+            app/build/reports/checkstyle/**
+            app/build/reports/pmd/**
+            app/build/reports/spotbugs/**
+            app/build/reports/spotless/**
+            baseline/suppressions_baseline.json
+            reports/suppressions_current.json
+          if-no-files-found: warn
+
+      - name: Run unit tests
+        run: ./gradlew --no-daemon :app:test --scan
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: |
+            app/build/reports/tests/test/**
+            app/build/test-results/test/**
+          if-no-files-found: warn
+
+      - name: OWASP Dependency-Check
+        run: ./gradlew --no-daemon :app:dependencyCheckAnalyze
+        continue-on-error: false
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
+      - name: Upload Dependency-Check reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-check-reports
+          path: |
+            app/build/reports/dependency-check-report.html
+            app/build/reports/dependency-check-report.json
+            app/build/reports/dependency-check-report.xml
+            app/build/reports/dependencyCheck/**
+            app/build/reports/dependency-check/**
+          if-no-files-found: warn
+
+      - name: Generate JaCoCo report
+        run: ./gradlew --no-daemon :app:jacocoTestReport
+
+      - name: Check coverage threshold
+        run: bash scripts/ci/check_coverage.sh app/build/reports/jacoco/test/jacocoTestReport.xml 80
+        continue-on-error: false
+
+      - name: Generate quality snapshot
+        run: bash scripts/ci/generate_quality_snapshot.sh
+        continue-on-error: true
+
+      - name: Upload quality snapshot
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quality-snapshot
+          path: reports/quality_snapshot.md
+          if-no-files-found: warn
+
+      - name: Upload JaCoCo reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacoco-report
+          path: app/build/reports/jacoco/test
+          if-no-files-found: warn
+
+      - name: Build shadow JAR
+        run: ./gradlew --no-daemon :app:shadowJar
+
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

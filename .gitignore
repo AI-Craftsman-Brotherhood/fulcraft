@@ -1,0 +1,49 @@
+# Build caches and outputs
+.gradle/
+.gradle-user/
+build/
+app/build/
+bin/
+target/
+out/
+reports/
+
+# Local runtime artifacts
+.ful/
+logs/
+app/logs/
+analysis.json
+tasks.jsonl
+results.jsonl
+run_log.txt
+*.log
+.attach_pid*
+
+# Local workspace metadata
+.codex/
+.trash/
+sample-legacy-project/
+scripts/dist/
+docs-internal/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Local configuration and secrets
+config.json
+AGENTS.md
+agent-understanding.md
+TODO.md
+.env.local
+.env.*
+secrets.properties

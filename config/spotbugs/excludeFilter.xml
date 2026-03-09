@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Temporarily suppress noisy warnings to avoid risky code changes. -->
+    <Match>
+        <Bug code="EI,EI2,RCN,Nm"/>
+    </Match>
+    <!-- Suppress Bad Practice warnings for constructor throws and unsafe getResource inheritance. -->
+    <Match>
+        <Bug code="CT"/>
+    </Match>
+    <Match>
+        <Bug code="UI"/>
+    </Match>
+    <!-- 
+        Suppress EI (Exposing Internal Representation) warnings for Config and related classes.
+        These are configuration objects intentionally designed to be shared across components.
+        Deep copying would be impractical and unnecessary for read-only configuration access.
+        This includes both EI_EXPOSE_REP (getters) and EI_EXPOSE_REP2 (setters).
+    -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.config.Config"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="~com\.example\.utgenerator\.application\.pipeline\.model\.Config\$.*"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.pipeline.context.RunContext"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.ui.tui.InteractiveSession"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.ui.tui.InteractiveSession$InteractiveResult"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <!--
+        Suppress EI warnings for model classes that return nested mutable objects.
+        Deep copying these objects is impractical and they are designed to be shared.
+    -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.feature.analysis.model.MethodInfo"/>
+        <Method name="getBranchSummary"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.model.GenerationSummary"/>
+        <Or>
+            <Method name="getBrittleTestSummary"/>
+            <Method name="getFlakyTestSummary"/>
+        </Or>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.feature.run.model.QualityGateResult"/>
+        <Or>
+            <Method name="getCoverageSummary"/>
+            <Method name="getStaticAnalysisSummary"/>
+            <Method name="getRunSummary"/>
+        </Or>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.feature.run.model.RunSummary"/>
+        <Or>
+            <Method name="getCoverage"/>
+            <Method name="getStaticAnalysis"/>
+        </Or>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.contract.ResultDef"/>
+        <Method name="getLogs"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!--
+        Suppress EI warnings for mutable context classes designed for concurrent access.
+        These classes intentionally return mutable maps for streaming aggregation.
+    -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.analysis.infra.AnalysisContext"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.infrastructure.usage.model.UsageSnapshot"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.infrastructure.usage.model.UsageSnapshot$ScopeUsage"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <!--
+        Suppress EI warnings for infra layer classes that return internal objects.
+        These are internal implementation details not exposed to external callers.
+    -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.context.TestStyleAnalyzer$FileAnalysisResult"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.context.TestStyleProfile"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.core.DefaultTestGenerator$GeneratedComponents"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.core.TaskExecutor$Dependencies"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.fix.RuntimeFixer$RuntimeFixContext"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.hint.DIHarnessGenerator$DIHarnessInfo"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.hint.HarnessContext"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.verification.impl.brittle.BrittleTestChecker$CheckResult"/>
+        <Method name="summary"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <!-- IO, LLM, Report, Selection layer internal classes -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.infrastructure.io.TasksFileEntry"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.llm.request.LlmRequest"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.reporting.impl.report.QualityScore"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.reporting.impl.report.ReportWriterAdapter"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.selection.impl.annotation.UtGenAnnotationData"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.selection.impl.annotation.UtGenAnnotationOverrides"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.selection.impl.core.SelectionContext"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.selection.impl.history.HistoryScorer"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.selection.impl.history.ReleaseNoteParser$ReleaseNotes"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.selection.impl.history.ReleaseNoteParser$VersionEntry"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.selection.impl.history.ScoreAggregator$AggregationContext"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.selection.impl.history.VersionHistoryExtractor$FileHistoryInfo"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.selection.impl.history.VersionHistoryScorePlugin"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.selection.impl.scoring.FeasibilityScorer$FeasibilityResult"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <!-- TUI layer internal classes -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.ui.tui.TuiApplication"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.ui.tui.TuiLogRedirector"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.ui.tui.config.ConfigEditor$ConfigItem"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.ui.tui.config.MetadataRegistry$VisibilityCondition"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.ui.tui.execution.ExecutionOrchestrator"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.ui.tui.plan.Plan"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <!-- Util layer internal classes -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.util.ExceptionSummarizer$ExceptionSummary"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.util.security.redaction.RedactionResult"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <!-- Model layer classes with setters -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.feature.analysis.model.DynamicResolution$Builder"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.model.GenerationSummary"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.model.GenerationTaskResult"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.feature.analysis.model.MethodInfo"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.feature.run.model.QualityGateResult"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.contract.ResultDef"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.feature.run.model.RunSummary"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.pipeline.adapter.ResultMerger"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <!-- Infra layer classes with setters -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.analysis.infra.BranchSummaryResult"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.analysis.infra.CompositeAnalysisEngine"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.analysis.infra.dynamic.DynamicFeatureEvent$Builder"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.analysis.infra.dynamic.DynamicResolver"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.analysis.impl.javaparser.JavaParserAnalyzer"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.analysis.impl.preprocess.SourcePreprocessor$Result"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.infrastructure.buildtool.DefaultBuildTool"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.reporting.impl.document.HtmlDocumentGenerator"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.reporting.impl.document.PdfDocumentGenerator"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.hint.DIHarnessGenerator"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.prompt.PromptBuilder"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.util.GeneratorLogger"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.llm.LlmAdapter"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.llm.LlmClientFactory$Builder"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.llm.decorator.LlmQuotaEnforcingClient"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.llm.provider.GeminiLlmClient"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.plugins.junit.suite.generation.impl.llm.request.LlmRequest$Builder"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <!-- Reporting API/Model classes - DTOs designed for data transfer across pipeline stages -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.reporting.model.ReportData"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.reporting.model.ReportData$Builder"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <!-- Reporting impl classes - Report writers -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.reporting.impl.MarkdownReportWriter"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.reporting.impl.HtmlReportWriter"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.reporting.impl.JsonReportWriter"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <!-- Reporting service classes -->
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.reporting.service.ReportGenerationService"/>
+        <Bug code="EI,EI2"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.infrastructure.metrics.MetricsCalculator"/>
+        <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.kernel.analysis.infra.dynamic.DynamicResolver$DynamicVisitor"/>
+        <Bug pattern="DB_DUPLICATE_BRANCHES"/>
+    </Match>
+    <Match>
+        <Class name="com.craftsmanbro.fulcraft.ui.tui.InteractiveSession"/>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+    <!--
+        Suppress common test-related warnings for all test classes.
+        These patterns are common in JUnit test code and are not considered bugs:
+        - UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR: Fields initialized in @BeforeEach
+        - DM_DEFAULT_ENCODING: Encoding typically not critical in test code
+        - NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE: Intentional null testing
+        - RV_RETURN_VALUE_IGNORED: Fluent API assertions, mock returns
+        - REC_CATCH_EXCEPTION: Broad exception catching for test utility code
+        - DMI_HARDCODED_ABSOLUTE_FILENAME: Test fixture paths
+        - DLS_DEAD_LOCAL_STORE: Unused test variables (often for future use)
+        - ES_COMPARING_STRINGS_WITH_EQ: Intentional identity checks in tests
+        - DP_DO_INSIDE_DO_PRIVILEGED: Tests don't need privileged blocks
+        - CNT_ROUGH_CONSTANT_VALUE: Constant approximations in tests
+    -->
+    <Match>
+        <Class name="~.*Test(\$.*)?$"/>
+        <Or>
+            <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+            <Bug pattern="DM_DEFAULT_ENCODING"/>
+            <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+            <Bug pattern="RV_RETURN_VALUE_IGNORED"/>
+            <Bug pattern="REC_CATCH_EXCEPTION"/>
+            <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+            <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+            <Bug pattern="ES_COMPARING_STRINGS_WITH_EQ"/>
+            <Bug pattern="DP_DO_INSIDE_DO_PRIVILEGED"/>
+            <Bug pattern="CNT_ROUGH_CONSTANT_VALUE"/>
+            <Bug pattern="DM_CONVERT_CASE"/>
+            <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+            <Bug pattern="UC_USELESS_OBJECT"/>
+        </Or>
+    </Match>
+</FindBugsFilter>

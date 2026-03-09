@@ -1,0 +1,14 @@
+# ServiceLoader Validation
+
+Generated: 2026-03-10T00:39:54+09:00
+Destination: /home/wada/dist/workspaces/fulcraft
+
+Validated files:
+- app/src/main/resources/META-INF/services/com.craftsmanbro.fulcraft.kernel.plugin.api.ActionPlugin
+- app/src/main/resources/META-INF/services/com.craftsmanbro.fulcraft.ui.cli.spi.CliCommand
+
+Checks:
+- No com.craftsmanbro.fulcraft.plugins.junit.* plugin registrations remain
+- No com.craftsmanbro.fulcraft.plugins.junit.command.* CLI registrations remain
+
+Status: OK

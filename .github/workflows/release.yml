@@ -1,0 +1,140 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Extract version from tag
+      id: version
+      run: |
+        TAG_NAME="${GITHUB_REF#refs/tags/}"
+        VERSION="${TAG_NAME#v}"
+        echo "tag=${TAG_NAME}" >> "$GITHUB_OUTPUT"
+        echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+        echo "📦 Building release for tag: ${TAG_NAME} (version: ${VERSION})"
+
+    - name: Build distribution with checksums
+      run: |
+        echo "🔨 Building distribution..."
+        ./gradlew distChecksum --no-daemon
+        
+        echo ""
+        echo "📁 Generated artifacts:"
+        ls -la app/build/distributions/
+
+    - name: Verify checksums
+      run: |
+        cd app/build/distributions
+        echo "🔍 Verifying checksums..."
+        
+        for sha_file in *.sha256; do
+          if [ -f "$sha_file" ]; then
+            echo "Checking: $sha_file"
+            sha256sum -c "$sha_file"
+          fi
+        done
+        
+        echo "✅ All checksums verified!"
+
+    - name: Check if release exists
+      id: check_release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        TAG_NAME="${{ steps.version.outputs.tag }}"
+        
+        if gh release view "$TAG_NAME" > /dev/null 2>&1; then
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+          echo "ℹ️ Release for tag $TAG_NAME already exists"
+        else
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+          echo "📝 Release for tag $TAG_NAME does not exist yet"
+        fi
+
+    - name: Create GitHub Release
+      if: steps.check_release.outputs.exists == 'false'
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        TAG_NAME="${{ steps.version.outputs.tag }}"
+        
+        echo "🚀 Creating release for $TAG_NAME..."
+        
+        gh release create "$TAG_NAME" \
+          --title "$TAG_NAME" \
+          --generate-notes \
+          --draft=false
+
+    - name: Upload release artifacts
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        TAG_NAME="${{ steps.version.outputs.tag }}"
+        
+        echo "📤 Uploading artifacts to release $TAG_NAME..."
+        
+        # Upload each artifact, skipping if already exists
+        cd app/build/distributions
+        
+        for file in ful-*.zip ful-*.jar *.sha256; do
+          if [ -f "$file" ]; then
+            echo "Uploading: $file"
+            gh release upload "$TAG_NAME" "$file" --clobber || {
+              echo "⚠️ Warning: Failed to upload $file (may already exist)"
+            }
+          fi
+        done
+        
+        echo ""
+        echo "✅ Release artifacts uploaded!"
+        echo "🔗 View release: https://github.com/${{ github.repository }}/releases/tag/$TAG_NAME"
+
+    - name: Summary
+      run: |
+        TAG_NAME="${{ steps.version.outputs.tag }}"
+        VERSION="${{ steps.version.outputs.version }}"
+        
+        echo "## 🎉 Release Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+        echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+        echo "| **Tag** | \`$TAG_NAME\` |" >> $GITHUB_STEP_SUMMARY
+        echo "| **Version** | \`$VERSION\` |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📦 Artifacts" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| File | Size |" >> $GITHUB_STEP_SUMMARY
+        echo "|------|------|" >> $GITHUB_STEP_SUMMARY
+        
+        cd app/build/distributions
+        for file in ful-*.zip ful-*.jar *.sha256; do
+          if [ -f "$file" ]; then
+            SIZE=$(du -h "$file" | cut -f1)
+            echo "| \`$file\` | $SIZE |" >> $GITHUB_STEP_SUMMARY
+          fi
+        done
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "🔗 [View Release](https://github.com/${{ github.repository }}/releases/tag/$TAG_NAME)" >> $GITHUB_STEP_SUMMARY

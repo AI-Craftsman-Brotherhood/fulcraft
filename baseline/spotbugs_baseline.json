@@ -1,0 +1,13 @@
+{
+  "tool": "spotbugs",
+  "generated_at": "2026-02-21",
+  "reports": {
+    "main": "app/build/reports/spotbugs/main.xml",
+    "test": "app/build/reports/spotbugs/test.xml"
+  },
+  "counts": {
+    "main": 0,
+    "test": 0,
+    "total": 0
+  }
+}

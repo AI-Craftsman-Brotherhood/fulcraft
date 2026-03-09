@@ -1,0 +1,104 @@
+<configuration>
+    <!-- Property for conditional MDC display -->
+    <property name="MDC_PATTERN" value="[%X{traceId:-}] " />
+    <property name="CONSOLE_PATTERN" value="%msg%n" />
+    <property name="CONSOLE_PATTERN_DEBUG" value="%d{HH:mm:ss} [%X{traceId:-}] [%X{subsystem:-}] %-5level %logger{36} - %msg%n" />
+    <property name="FILE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{runId:-}] [%X{traceId:-}] [%X{subsystem:-}] [%X{stage:-}] %-5level %logger{36} - %msg%n" />
+
+    <!-- Console appender for stdout (INFO level) -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.craftsmanbro.fulcraft.infrastructure.logging.impl.MaskedPatternLayout">
+                <!-- Clean output for CLI usage (just the message) -->
+                <pattern>${CONSOLE_PATTERN}</pattern>
+            </layout>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>NEUTRAL</onMismatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>NEUTRAL</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- Console appender for stderr (WARN/ERROR level) -->
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.craftsmanbro.fulcraft.infrastructure.logging.impl.MaskedPatternLayout">
+                <pattern>[%level] %msg%n</pattern>
+            </layout>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+
+    <!-- General Application Log (JSON, Rotated) -->
+    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/app.json</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>logs/app.%d{yyyy-MM-dd}.json</fileNamePattern>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.craftsmanbro.fulcraft.infrastructure.logging.impl.JsonLayout" />
+        </encoder>
+    </appender>
+
+    <!-- Text-based Application Log with full context (Rotated) -->
+    <appender name="APP_TEXT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/ful.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/ful.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.craftsmanbro.fulcraft.infrastructure.logging.impl.MaskedPatternLayout">
+                <pattern>${FILE_PATTERN}</pattern>
+            </layout>
+        </encoder>
+    </appender>
+
+    <!-- LLM Log (Text/JSON, Rotated) -->
+    <appender name="LLM_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/llm.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/llm.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.craftsmanbro.fulcraft.infrastructure.logging.impl.MaskedPatternLayout">
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{runId:-}] [%X{traceId:-}] [%X{taskId:-}] %-5level %logger{36} - %msg%n</pattern>
+            </layout>
+        </encoder>
+    </appender>
+
+    <!-- LLM logger writes to LLM_FILE only -->
+    <logger name="llm" level="INFO" additivity="false">
+        <appender-ref ref="LLM_FILE" />
+    </logger>
+    
+    <!-- Silence OpenTelemetry and other noisy libs -->
+    <logger name="io.opentelemetry" level="OFF" />
+    
+    <!-- Application logger -->
+    <logger name="com.craftsmanbro.fulcraft" level="INFO" />
+    <logger name="utgenerator" level="INFO" />
+
+    <root level="WARN">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDERR" />
+        <appender-ref ref="APP_FILE" />
+        <appender-ref ref="APP_TEXT_FILE" />
+    </root>
+</configuration>

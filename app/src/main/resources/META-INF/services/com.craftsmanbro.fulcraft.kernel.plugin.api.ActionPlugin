@@ -1,0 +1,5 @@
+com.craftsmanbro.fulcraft.plugins.noop.NoopGeneratePlugin
+com.craftsmanbro.fulcraft.plugins.analysis.AnalyzePlugin
+com.craftsmanbro.fulcraft.plugins.reporting.ReportPlugin
+com.craftsmanbro.fulcraft.plugins.document.DocumentPlugin
+com.craftsmanbro.fulcraft.plugins.exploration.ExplorePlugin

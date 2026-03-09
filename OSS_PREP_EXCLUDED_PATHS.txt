@@ -1,0 +1,66 @@
+# OSS Prep Exclusions
+
+Generated: 2026-03-10T00:39:54+09:00
+Destination: /home/wada/dist/workspaces/fulcraft
+
+Profile: basic
+
+Excluded during copy:
+- .git/
+- .agent/
+- .codex/
+- .ful/
+- .gemini/
+- .gradle/
+- .gradle-user/
+- .tools/
+- .trash/
+- .venv/
+- .vscode/
+- __pycache__/
+- app/build/
+- app/bin/
+- app/logs/
+- build/
+- book/
+- out/
+- target/
+- *.log
+- app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/
+- app/src/test/java/com/craftsmanbro/fulcraft/plugins/junit/
+- app/src/integrationTest/java/com/craftsmanbro/fulcraft/plugins/junit/
+- docs/plugins/junit/
+- docs/design/
+- docs/forme/
+- scripts/dist/
+- scripts/prompts/
+- scripts/copy_oss_workspace.sh
+- scripts/ci/tests
+- scripts/ci/auto_review_fix_test.py
+- scripts/ci/auto_review_fix.py
+- app/src/main/resources/prompts/default_generation.txt
+- app/src/main/resources/prompts/high_complexity_generation.txt
+- app/src/main/resources/prompts/default_fix.txt
+- app/src/main/resources/prompts/default_runtime_fix.txt
+- app/src/main/resources/prompts/fallback_stub.txt
+- app/src/main/resources/prompts/split_phase1_validation.txt
+- app/src/main/resources/prompts/split_phase2_happy_path.txt
+- app/src/main/resources/prompts/split_phase3_edge_cases.txt
+- app/src/main/resources/prompts/few_shot/
+- agent-understanding.md
+- AGENTS.md
+- book.toml
+- CODE_READING_CHECKLIST.md
+- 
+- Paths matched by the repository root .gitignore
+
+Post-copy adjustments:
+- Removed ServiceLoader registrations for plugins.junit.*
+- Rewrote default workflow to exclude junit-select / junit-generate / junit-brittle-check
+- Removed top-level docs navigation links to docs/plugins/junit
+- Replaced init command messages that suggested junit-generate
+
+Important:
+- This copy is for OSS preparation. It still contains direct source-level references to
+  com.craftsmanbro.fulcraft.plugins.junit in non-JUnit packages.
+- See OSS_PREP_REMAINING_JUNIT_REFERENCES.txt for the remaining refactor targets.
