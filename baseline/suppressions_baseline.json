@@ -1,0 +1,815 @@
+{
+  "tool": "suppressions",
+  "generated_at": "2026-02-23",
+  "generated_at_utc": "2026-02-23T00:58:06+00:00",
+  "source_roots": [
+    "app/src/main/java",
+    "app/src/test/java",
+    "app/src/integrationTest/java",
+    "app/src/e2eTest/java"
+  ],
+  "counts": {
+    "total": 32,
+    "rule_entries_total": 36,
+    "SuppressWarnings": 28,
+    "SuppressFBWarnings": 4,
+    "NOPMD": 0
+  },
+  "counts_by_source_set": {
+    "main": {
+      "total": 32,
+      "SuppressWarnings": 28,
+      "SuppressFBWarnings": 4,
+      "NOPMD": 0
+    },
+    "test": {
+      "total": 0,
+      "SuppressWarnings": 0,
+      "SuppressFBWarnings": 0,
+      "NOPMD": 0
+    },
+    "integrationTest": {
+      "total": 0,
+      "SuppressWarnings": 0,
+      "SuppressFBWarnings": 0,
+      "NOPMD": 0
+    },
+    "e2eTest": {
+      "total": 0,
+      "SuppressWarnings": 0,
+      "SuppressFBWarnings": 0,
+      "NOPMD": 0
+    }
+  },
+  "counts_by_rule": [
+    {
+      "rule": "PMD.ExcessiveImports",
+      "count": 17
+    },
+    {
+      "rule": "PMD.NcssCount",
+      "count": 4
+    },
+    {
+      "rule": "unchecked",
+      "count": 4
+    },
+    {
+      "rule": "MS_EXPOSE_REP",
+      "count": 2
+    },
+    {
+      "rule": "PMD.CloseResource",
+      "count": 2
+    },
+    {
+      "rule": "DB_DUPLICATE_BRANCHES",
+      "count": 1
+    },
+    {
+      "rule": "PMD.ExceptionAsFlowControl",
+      "count": 1
+    },
+    {
+      "rule": "PMD.MoreThanOneLogger",
+      "count": 1
+    },
+    {
+      "rule": "SE_TRANSIENT_FIELD_NOT_RESTORED",
+      "count": 1
+    },
+    {
+      "rule": "java:S1200",
+      "count": 1
+    },
+    {
+      "rule": "java:S3776",
+      "count": 1
+    },
+    {
+      "rule": "java:S6548",
+      "count": 1
+    }
+  ],
+  "grouped": [
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/config/Config.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.NcssCount",
+      "count": 1,
+      "lines": [
+        12
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/config/Config.java",
+      "annotation": "SuppressWarnings",
+      "rule": "java:S1200",
+      "count": 1,
+      "lines": [
+        12
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/config/Config.java",
+      "annotation": "SuppressWarnings",
+      "rule": "java:S3776",
+      "count": 1,
+      "lines": [
+        12
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/analysis/core/service/dynamic/DynamicResolver.java",
+      "annotation": "SuppressFBWarnings",
+      "rule": "DB_DUPLICATE_BRANCHES",
+      "count": 1,
+      "lines": [
+        1597
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/analysis/core/service/dynamic/DynamicResolver.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        43
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/analysis/core/service/metric/BranchSummaryExtractor.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        53
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/document/adapter/LlmDocumentGenerator.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        65
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/document/core/llm/validation/LlmMethodSectionValidator.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.NcssCount",
+      "count": 1,
+      "lines": [
+        25
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/reporting/core/service/ReportingService.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        42
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/reporting/flow/ReportFlow.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        45
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/reporting/stage/ReportStage.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        85
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/collection/impl/CastUtils.java",
+      "annotation": "SuppressWarnings",
+      "rule": "unchecked",
+      "count": 4,
+      "lines": [
+        28,
+        43,
+        58,
+        73
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/llm/impl/safety/redaction/RedactionException.java",
+      "annotation": "SuppressFBWarnings",
+      "rule": "SE_TRANSIENT_FIELD_NOT_RESTORED",
+      "count": 1,
+      "lines": [
+        24
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/logging/impl/Logger.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.CloseResource",
+      "count": 1,
+      "lines": [
+        46
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/logging/impl/Logger.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.MoreThanOneLogger",
+      "count": 1,
+      "lines": [
+        46
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/metrics/impl/MetricsCalculator.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        43
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/parser/impl/javaparser/JavaParserAnalyzer.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        47
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/parser/impl/spoon/SpoonAnalyzer.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExceptionAsFlowControl",
+      "count": 1,
+      "lines": [
+        298
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/parser/impl/spoon/SpoonAnalyzer.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        52
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/telemetry/impl/Telemetry.java",
+      "annotation": "SuppressFBWarnings",
+      "rule": "MS_EXPOSE_REP",
+      "count": 1,
+      "lines": [
+        84
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/telemetry/impl/Telemetry.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.CloseResource",
+      "count": 1,
+      "lines": [
+        16
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/telemetry/impl/Telemetry.java",
+      "annotation": "SuppressWarnings",
+      "rule": "java:S6548",
+      "count": 1,
+      "lines": [
+        16
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/JUnitBundledPlugin.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        44
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/generate/core/service/validation/GeneratedTestValidator.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.NcssCount",
+      "count": 1,
+      "lines": [
+        29
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/generate/flow/GenerationFlow.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        54
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/report/core/service/ReportingService.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        37
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/report/flow/ReportFlow.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        43
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/report/stage/ReportStage.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        79
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/select/core/service/RuleBasedSelectionService.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        39
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/select/stage/SelectStage.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        51
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/ui/tui/TuiApplication.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports",
+      "count": 1,
+      "lines": [
+        54
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/ui/tui/config/MetadataRegistry.java",
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.NcssCount",
+      "count": 1,
+      "lines": [
+        14
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/ui/tui/i18n/TuiMessageSource.java",
+      "annotation": "SuppressFBWarnings",
+      "rule": "MS_EXPOSE_REP",
+      "count": 1,
+      "lines": [
+        45
+      ],
+      "reason": "",
+      "alternative": "",
+      "revisit_condition": "",
+      "next_review_date": ""
+    }
+  ],
+  "entries": [
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/config/Config.java",
+      "line": 12,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.NcssCount"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/config/Config.java",
+      "line": 12,
+      "annotation": "SuppressWarnings",
+      "rule": "java:S1200"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/config/Config.java",
+      "line": 12,
+      "annotation": "SuppressWarnings",
+      "rule": "java:S3776"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/analysis/core/service/dynamic/DynamicResolver.java",
+      "line": 43,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/analysis/core/service/dynamic/DynamicResolver.java",
+      "line": 1597,
+      "annotation": "SuppressFBWarnings",
+      "rule": "DB_DUPLICATE_BRANCHES"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/analysis/core/service/metric/BranchSummaryExtractor.java",
+      "line": 53,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/document/adapter/LlmDocumentGenerator.java",
+      "line": 65,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/document/core/llm/validation/LlmMethodSectionValidator.java",
+      "line": 25,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.NcssCount"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/reporting/core/service/ReportingService.java",
+      "line": 42,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/reporting/flow/ReportFlow.java",
+      "line": 45,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/feature/reporting/stage/ReportStage.java",
+      "line": 85,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/collection/impl/CastUtils.java",
+      "line": 28,
+      "annotation": "SuppressWarnings",
+      "rule": "unchecked"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/collection/impl/CastUtils.java",
+      "line": 43,
+      "annotation": "SuppressWarnings",
+      "rule": "unchecked"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/collection/impl/CastUtils.java",
+      "line": 58,
+      "annotation": "SuppressWarnings",
+      "rule": "unchecked"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/collection/impl/CastUtils.java",
+      "line": 73,
+      "annotation": "SuppressWarnings",
+      "rule": "unchecked"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/llm/impl/safety/redaction/RedactionException.java",
+      "line": 24,
+      "annotation": "SuppressFBWarnings",
+      "rule": "SE_TRANSIENT_FIELD_NOT_RESTORED"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/logging/impl/Logger.java",
+      "line": 46,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.CloseResource"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/logging/impl/Logger.java",
+      "line": 46,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.MoreThanOneLogger"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/metrics/impl/MetricsCalculator.java",
+      "line": 43,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/parser/impl/javaparser/JavaParserAnalyzer.java",
+      "line": 47,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/parser/impl/spoon/SpoonAnalyzer.java",
+      "line": 52,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/parser/impl/spoon/SpoonAnalyzer.java",
+      "line": 298,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExceptionAsFlowControl"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/telemetry/impl/Telemetry.java",
+      "line": 16,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.CloseResource"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/telemetry/impl/Telemetry.java",
+      "line": 16,
+      "annotation": "SuppressWarnings",
+      "rule": "java:S6548"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/telemetry/impl/Telemetry.java",
+      "line": 84,
+      "annotation": "SuppressFBWarnings",
+      "rule": "MS_EXPOSE_REP"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/JUnitBundledPlugin.java",
+      "line": 44,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/generate/core/service/validation/GeneratedTestValidator.java",
+      "line": 29,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.NcssCount"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/generate/flow/GenerationFlow.java",
+      "line": 54,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/report/core/service/ReportingService.java",
+      "line": 37,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/report/flow/ReportFlow.java",
+      "line": 43,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/report/stage/ReportStage.java",
+      "line": 79,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/select/core/service/RuleBasedSelectionService.java",
+      "line": 39,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/plugins/junit/suite/select/stage/SelectStage.java",
+      "line": 51,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/ui/tui/TuiApplication.java",
+      "line": 54,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.ExcessiveImports"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/ui/tui/config/MetadataRegistry.java",
+      "line": 14,
+      "annotation": "SuppressWarnings",
+      "rule": "PMD.NcssCount"
+    },
+    {
+      "source_set": "main",
+      "file": "app/src/main/java/com/craftsmanbro/fulcraft/ui/tui/i18n/TuiMessageSource.java",
+      "line": 45,
+      "annotation": "SuppressFBWarnings",
+      "rule": "MS_EXPOSE_REP"
+    }
+  ]
+}

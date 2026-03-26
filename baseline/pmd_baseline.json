@@ -1,0 +1,13 @@
+{
+  "tool": "pmd",
+  "generated_at": "2026-02-21",
+  "reports": {
+    "main": "app/build/reports/pmd/main.xml",
+    "test": "app/build/reports/pmd/test.xml"
+  },
+  "counts": {
+    "main": 8318,
+    "test": 0,
+    "total": 8318
+  }
+}

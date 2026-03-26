@@ -1,0 +1,3 @@
+# Built-in providers are registered programmatically in LlmProviderRegistry.
+# This file allows additional providers to be discovered via ServiceLoader.
+# Add fully qualified class names of LlmClientProvider implementations, one per line.

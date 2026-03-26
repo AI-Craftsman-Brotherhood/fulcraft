@@ -1,0 +1,13 @@
+{
+  "tool": "checkstyle",
+  "generated_at": "2026-02-21",
+  "reports": {
+    "main": "app/build/reports/checkstyle/main.xml",
+    "test": "app/build/reports/checkstyle/test.xml"
+  },
+  "counts": {
+    "main": 0,
+    "test": 0,
+    "total": 0
+  }
+}

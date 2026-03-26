@@ -1,0 +1,231 @@
+name: FUL Quality Gate
+
+on:
+  pull_request:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      # プロジェクトに合わせてビルドが必要な場合はここで実行
+      # - name: Build Project
+      #   run: ./gradlew assemble
+
+      - name: Determine Execution Mode
+        id: mode
+        run: |
+          if [ -n "${{ secrets.GEMINI_API_KEY }}" ] || [ -n "${{ secrets.OPENAI_API_KEY }}" ] || [ -n "${{ secrets.AZURE_OPENAI_API_KEY }}" ] || [ -n "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+            echo "mode=FULL" >> $GITHUB_OUTPUT
+            echo "Secrets detected. Running in FULL mode."
+          else
+            echo "mode=SAFE" >> $GITHUB_OUTPUT
+            echo "No secrets detected. Running in SAFE mode."
+          fi
+
+      - name: Run FUL (FULL Mode)
+        id: run-full
+        if: steps.mode.outputs.mode == 'FULL'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # 実行権限の付与
+          chmod +x ./scripts/ful
+          ./scripts/ful run
+
+      # カバレッジレポート生成 (FULL Mode)
+      - name: Generate Coverage Report
+        if: steps.mode.outputs.mode == 'FULL'
+        run: |
+          # JaCoCoレポートが存在する場合は生成
+          if [ -f "build.gradle" ] || [ -f "build.gradle.kts" ]; then
+            ./gradlew jacocoTestReport || echo "JaCoCo report generation skipped or failed"
+          fi
+        continue-on-error: true
+
+      # 静的解析実行 (両モード共通)
+      - name: Run Static Analysis
+        id: static-analysis
+        run: |
+          if [ -f "build.gradle" ] || [ -f "build.gradle.kts" ]; then
+            # SpotBugs
+            ./gradlew spotbugsMain || echo "SpotBugs skipped or not configured"
+            # PMD
+            ./gradlew pmdMain || echo "PMD skipped or not configured"
+          fi
+        continue-on-error: true
+
+      - name: Run FUL (SAFE Mode)
+        if: steps.mode.outputs.mode == 'SAFE'
+        run: |
+          chmod +x ./scripts/ful
+          # Secretsがない場合は解析のみ、またはドライランを行う
+          ./scripts/ful analyze || true
+          echo "SAFE Mode: Skipped LLM execution."
+
+      # 品質ゲート評価
+      {{QUALITY_GATE_PREFIX}}- name: Evaluate Quality Gate
+        id: quality-gate
+        run: |
+          chmod +x ./scripts/ful
+          if [ "${{ steps.mode.outputs.mode }}" == "FULL" ]; then
+            # FULL Mode: カバレッジと静的解析を評価
+            ./scripts/ful quality-gate evaluate \
+              --coverage-report build/reports/jacoco/test/jacocoTestReport.xml \
+              --spotbugs-report build/reports/spotbugs/main.xml \
+              --pmd-report build/reports/pmd/main.xml \
+              --output build/reports/quality-gate-result.json \
+              --json || echo "result=FAILED" >> $GITHUB_OUTPUT
+          else
+            # SAFE Mode: 静的解析のみ評価
+            ./scripts/ful quality-gate evaluate \
+              --safe-mode \
+              --spotbugs-report build/reports/spotbugs/main.xml \
+              --pmd-report build/reports/pmd/main.xml \
+              --output build/reports/quality-gate-result.json \
+              --json || echo "result=FAILED" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+
+      - name: Comment on PR
+        if: {{COMMENT_CONDITION}}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const mode = '${{ steps.mode.outputs.mode }}';
+            const runOutcome = '${{ steps.run-full.outcome }}';
+            const qgOutcome = '${{ steps.quality-gate.outcome }}';
+            
+            const TAG = '<!-- ful-quality-gate -->';
+            let body = `${TAG}\n## 🧪 FUL Quality Gate Report\n\n`;
+            
+            if (mode === 'SAFE') {
+              body += '⚠️ **SAFE Mode**: APIキーが検出されなかったため、LLMによる自動生成はスキップされました。\n';
+              body += '静的解析のみで品質ゲートを評価しています。\n\n';
+            } else {
+              if (runOutcome === 'success') {
+                body += '✅ **テスト生成**: 完了\n';
+              } else {
+                body += '❌ **テスト生成**: エラーが発生しました\n';
+              }
+            }
+            
+            // 品質ゲート結果の読み込み
+            const qgResultPath = 'build/reports/quality-gate-result.json';
+            try {
+              if (fs.existsSync(qgResultPath)) {
+                const qgResult = JSON.parse(fs.readFileSync(qgResultPath, 'utf8'));
+                const status = qgResult.status || 'UNKNOWN';
+                const statusEmoji = status === 'PASSED' ? '✅' : status === 'WARNING' ? '⚠️' : '❌';
+                
+                body += `\n### Quality Gate: ${statusEmoji} ${status}\n\n`;
+                
+                // カバレッジ情報
+                if (qgResult.coverage_summary) {
+                  const cov = qgResult.coverage_summary;
+                  const lineRate = (cov.line_coverage_rate * 100).toFixed(1);
+                  const branchRate = (cov.branch_coverage_rate * 100).toFixed(1);
+                  body += '#### 📊 Coverage\n';
+                  body += `- **Line Coverage**: ${lineRate}%\n`;
+                  body += `- **Branch Coverage**: ${branchRate}%\n\n`;
+                }
+                
+                // 静的解析情報
+                if (qgResult.static_analysis_summary) {
+                  const sa = qgResult.static_analysis_summary;
+                  body += '#### 🔍 Static Analysis\n';
+                  body += `- **Blocker**: ${sa.blocker_count || 0}\n`;
+                  body += `- **Critical**: ${sa.critical_count || 0}\n`;
+                  body += `- **Major**: ${sa.major_count || 0}\n`;
+                  body += `- **Minor**: ${sa.minor_count || 0}\n\n`;
+                }
+                
+                // 失敗理由
+                if (qgResult.reasons && qgResult.reasons.length > 0) {
+                  body += '#### ❗ Issues\n';
+                  for (const reason of qgResult.reasons) {
+                    if (reason.severity === 'FAILURE') {
+                      body += `- ❌ ${reason.message}\n`;
+                    } else if (reason.severity === 'WARNING') {
+                      body += `- ⚠️ ${reason.message}\n`;
+                    }
+                  }
+                  body += '\n';
+                }
+              } else {
+                body += '\n*品質ゲート結果ファイルが見つかりませんでした。*\n';
+              }
+            } catch (e) {
+              console.log('Error reading quality gate result:', e);
+              body += '\n*品質ゲート結果の読み込みに失敗しました。*\n';
+            }
+            
+            // テスト生成サマリーの読み込み (FULLモードのみ)
+            if (mode === 'FULL') {
+              const summaryPath = 'build/reports/test-generation/summary.json';
+              try {
+                if (fs.existsSync(summaryPath)) {
+                  const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
+                  const passRate = summary.pass_rate || summary.passRate;
+                  const compileRate = summary.compile_rate || summary.compileRate;
+                  const created = summary.test_pass_count || summary.testPassCount || 0;
+                  const failed = summary.executed_tasks - created || 0;
+                  
+                  body += '#### 🧪 Test Generation Summary\n';
+                  if (passRate !== undefined) {
+                    body += `- **Pass Rate**: ${(passRate * 100).toFixed(1)}%\n`;
+                  }
+                  if (compileRate !== undefined) {
+                    body += `- **Compile Rate**: ${(compileRate * 100).toFixed(1)}%\n`;
+                  }
+                  body += `- **Tests Passed**: ${created}\n`;
+                }
+              } catch (e) {
+                console.log('Error reading summary:', e);
+              }
+            }
+            
+            // 既存コメントの検索と更新
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const existingComment = comments.find(c => c.body.includes(TAG));
+            
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }

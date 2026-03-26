@@ -1,0 +1,2 @@
+com.craftsmanbro.fulcraft.kernel.pipeline.interceptor.ConfigLoaderInterceptor
+com.craftsmanbro.fulcraft.plugins.analysis.interceptor.SecurityFilterInterceptor

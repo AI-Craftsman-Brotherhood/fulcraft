@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="FUL PMD Rules"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+    <description>
+        PMD ruleset for FUL. Based on standard Java categories with noisy rules excluded.
+    </description>
+
+    <rule ref="category/java/errorprone.xml">
+        <priority>2</priority>
+        <exclude name="AvoidLiteralsInIfCondition" />
+        <exclude name="AvoidFieldNameMatchingMethodName" />
+        <exclude name="AvoidDuplicateLiterals" />
+        <exclude name="NullAssignment" />
+        <exclude name="AvoidBranchingStatementAsLastInLoop" />
+        <exclude name="TestClassWithoutTestCases" />
+        <exclude name="UseProperClassLoader" />
+        <exclude name="AssignmentInOperand" />
+        <exclude name="CompareObjectsWithEquals" />
+        <exclude name="MissingSerialVersionUID" />
+        <exclude name="ReturnEmptyCollectionRatherThanNull" />
+        <exclude name="ConstructorCallsOverridableMethod" />
+        <exclude name="UnusedNullCheckInEquals" />
+        <exclude name="MoreThanOneLogger" />
+        <exclude name="CloseResource" />
+        <exclude name="AvoidInstanceofChecksInCatchClause" />
+        <exclude name="EmptyCatchBlock" />
+    </rule>
+
+    <rule ref="category/java/errorprone.xml/CompareObjectsWithEquals">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/java/errorprone.xml/MissingSerialVersionUID">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/java/errorprone.xml/ReturnEmptyCollectionRatherThanNull">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/java/errorprone.xml/ConstructorCallsOverridableMethod">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/java/errorprone.xml/UnusedNullCheckInEquals">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/java/errorprone.xml/MoreThanOneLogger">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/java/errorprone.xml/CloseResource">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
+        <priority>3</priority>
+    </rule>
+    <rule ref="category/java/security.xml">
+        <priority>2</priority>
+    </rule>
+
+    <!-- Advisory rules (Priority 3) -->
+    <rule ref="category/java/bestpractices.xml">
+        <priority>3</priority>
+        <exclude name="GuardLogStatement" />
+        <exclude name="LooseCoupling" />
+        <exclude name="UnusedAssignment" />
+    </rule>
+    <rule ref="category/java/codestyle.xml">
+        <priority>3</priority>
+        <exclude name="ShortClassName" />
+        <exclude name="ShortVariable" />
+        <exclude name="OnlyOneReturn" />
+        <exclude name="LongVariable" />
+        <exclude name="UseExplicitTypes" />
+        <exclude name="FieldDeclarationsShouldBeAtStartOfClass" />
+        <exclude name="CommentDefaultAccessModifier" />
+        <exclude name="AtLeastOneConstructor" />
+        <exclude name="UnnecessaryFullyQualifiedName" />
+        <exclude name="BooleanGetMethodName" />
+        <exclude name="PrematureDeclaration" />
+        <exclude name="UselessParentheses" />
+        <exclude name="MethodArgumentCouldBeFinal" />
+        <exclude name="ShortMethodName" />
+        <exclude name="EmptyMethodInAbstractClassShouldBeAbstract" />
+        <exclude name="LinguisticNaming" />
+        <exclude name="CallSuperInConstructor" />
+    </rule>
+    <rule ref="category/java/design.xml">
+        <priority>3</priority>
+        <exclude name="LawOfDemeter" />
+        <exclude name="TooManyMethods" />
+        <exclude name="GodClass" />
+        <exclude name="UseObjectForClearerAPI" />
+        <exclude name="AvoidDeeplyNestedIfStmts" />
+        <exclude name="ExcessivePublicCount" />
+        <exclude name="LoosePackageCoupling" />
+        <exclude name="CyclomaticComplexity" />
+        <exclude name="AvoidCatchingGenericException" />
+        <exclude name="NPathComplexity" />
+        <exclude name="TooManyFields" />
+        <exclude name="CognitiveComplexity" />
+        <exclude name="DataClass" />
+        <exclude name="SimplifyBooleanReturns" />
+        <exclude name="CouplingBetweenObjects" />
+    </rule>
+    <rule ref="category/java/multithreading.xml">
+        <priority>3</priority>
+        <exclude name="DoNotUseThreads" />
+        <exclude name="AvoidSynchronizedAtMethodLevel" />
+        <exclude name="AvoidSynchronizedStatement" />
+        <exclude name="AvoidUsingVolatile" />
+        <exclude name="UseConcurrentHashMap" />
+    </rule>
+    <rule ref="category/java/performance.xml">
+        <priority>3</priority>
+        <exclude name="ConsecutiveAppendsShouldReuse" />
+        <exclude name="AppendCharacterWithChar" />
+        <exclude name="ConsecutiveLiteralAppends" />
+        <exclude name="InsufficientStringBufferDeclaration" />
+        <exclude name="AvoidInstantiatingObjectsInLoops" />
+    </rule>
+</ruleset>

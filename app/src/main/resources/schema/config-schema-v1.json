@@ -1,0 +1,459 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FUL Config Schema",
+  "description": "JSON Schema for config.json based on config.example.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["project", "selection_rules", "llm"],
+  "properties": {
+    "schema_version": {
+      "type": ["string", "integer"],
+      "description": "Schema version for config validation (e.g., 1 or 1.0.0)."
+    },
+    "schemaVersion": {
+      "type": ["string", "integer"],
+      "description": "Legacy schema version key (prefer schema_version)."
+    },
+    "AppName": {
+      "type": "string",
+      "description": "Application name metadata."
+    },
+    "version": {
+      "type": "string",
+      "description": "Application version metadata."
+    },
+    "project": {"$ref": "#/definitions/ProjectConfig"},
+    "analysis": {"$ref": "#/definitions/AnalysisConfig"},
+    "selection_rules": {"$ref": "#/definitions/SelectionRules"},
+    "llm": {"$ref": "#/definitions/LlmConfig"},
+    "audit": {"$ref": "#/definitions/AuditConfig"},
+    "quota": {"$ref": "#/definitions/QuotaConfig"},
+    "context_awareness": {"$ref": "#/definitions/ContextAwarenessConfig"},
+    "generation": {"$ref": "#/definitions/GenerationConfig"},
+    "governance": {"$ref": "#/definitions/GovernanceConfig"},
+    "execution": {"$ref": "#/definitions/ExecutionConfig"},
+    "quality_gate": {"$ref": "#/definitions/QualityGateConfig"},
+    "output": {"$ref": "#/definitions/OutputConfig"},
+    "cli": {"$ref": "#/definitions/CliConfig"},
+    "pipeline": {"$ref": "#/definitions/PipelineConfig"}
+  },
+  "definitions": {
+    "ProjectConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "root": {"type": "string"},
+        "docs_output": {"type": "string"},
+        "repo_url": {"type": "string"},
+        "commit": {"type": "string"},
+        "build_tool": {"type": "string", "enum": ["gradle", "maven"]},
+        "build_command": {"type": "string"},
+        "exclude_paths": {"type": "array", "items": {"type": "string"}},
+        "include_paths": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "AnalysisConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "spoon": {"$ref": "#/definitions/SpoonConfig"},
+        "dump_file_list": {"type": "boolean"},
+        "source_root_mode": {
+          "type": "string",
+          "enum": ["AUTO", "STRICT", "auto", "strict"]
+        },
+        "source_root_paths": {"type": "array", "items": {"type": "string"}},
+        "source_charset": {"type": "string"},
+        "classpath": {"$ref": "#/definitions/ClasspathConfig"},
+        "preprocess": {"$ref": "#/definitions/PreprocessConfig"},
+        "external_config_resolution": {"type": "boolean"},
+        "enable_interprocedural_resolution": {"type": "boolean"},
+        "interprocedural_callsite_limit": {"type": "integer", "minimum": 1},
+        "debug_dynamic_resolution": {"type": "boolean"},
+        "experimental_candidate_enum": {"type": "boolean"}
+      }
+    },
+    "SpoonConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "no_classpath": {"type": "boolean"}
+      }
+    },
+    "ClasspathConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["AUTO", "STRICT", "OFF", "auto", "strict", "off"]
+        }
+      }
+    },
+    "PreprocessConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["OFF", "AUTO", "STRICT", "off", "auto", "strict"]
+        },
+        "tool": {
+          "type": "string",
+          "enum": ["AUTO", "DELOMBOK", "auto", "delombok"]
+        },
+        "work_dir": {"type": "string"},
+        "clean_work_dir": {"type": "boolean"},
+        "include_generated": {"type": "boolean"},
+        "delombok": {"$ref": "#/definitions/DelombokConfig"}
+      }
+    },
+    "DelombokConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "lombok_jar_path": {"type": "string"}
+      }
+    },
+    "SelectionRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["class_min_loc", "class_min_method_count", "method_min_loc", "method_max_loc"],
+      "properties": {
+        "class_min_loc": {"type": "integer", "minimum": 0},
+        "class_min_method_count": {"type": "integer", "minimum": 0},
+        "method_min_loc": {"type": "integer", "minimum": 0},
+        "method_max_loc": {"type": "integer", "minimum": 1},
+        "max_targets": {"type": "integer", "minimum": 0},
+        "max_methods_per_class": {"type": "integer", "minimum": 0},
+        "exclude_getters_setters": {"type": "boolean"},
+        "max_methods_per_package": {"type": ["integer", "null"], "minimum": 1},
+        "exclude_annotations": {"type": "array", "items": {"type": "string"}},
+        "deprioritize_annotations": {"type": "array", "items": {"type": "string"}},
+        "complexity": {"$ref": "#/definitions/ComplexityConfig"},
+        "version_history": {"$ref": "#/definitions/VersionHistoryConfig"},
+        "removal_boost": {"type": "number"},
+        "deprioritize_factor": {"type": "number", "minimum": 0, "maximum": 1},
+        "feasibility_penalties": {"$ref": "#/definitions/FeasibilityPenalties"}
+      }
+    },
+    "ComplexityConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_cyclomatic": {"type": "integer", "minimum": 1},
+        "strategy": {
+          "type": "string",
+          "enum": ["skip", "warn", "split", "specialized_prompt"]
+        },
+        "expected_tests_per_complexity": {"type": "number", "minimum": 0},
+        "max_expected_tests": {"type": "integer", "minimum": 1}
+      }
+    },
+    "FeasibilityPenalties": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "external_io": {"type": "number"},
+        "di_dependency": {"type": "number"},
+        "unsupported_param": {"type": "number"},
+        "high_param_count": {"type": "number"},
+        "high_complexity": {"type": "number"},
+        "unresolved_calls": {"type": "number"},
+        "static_utility_bonus": {"type": "number"}
+      }
+    },
+    "VersionHistoryConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "default_score": {"type": "number"},
+        "change_weight": {"type": "number"},
+        "recency_weight": {"type": "number"},
+        "bug_fix_weight": {"type": "number"},
+        "fallback_to_static": {"type": "boolean"},
+        "cache_enabled": {"type": "boolean"},
+        "parse_release_notes": {"type": "boolean"}
+      }
+    },
+    "LlmConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": [
+            "gemini",
+            "openai",
+            "azure-openai",
+            "anthropic",
+            "vertex",
+            "bedrock",
+            "local",
+            "mock",
+            "ollama",
+            "openai-compatible",
+            "openai_compatible",
+            "azure_openai",
+            "vertex-ai",
+            "vertex_ai"
+          ]
+        },
+        "allowed_providers": {"type": "array", "items": {"type": "string"}},
+        "allowed_models": {
+          "type": "object",
+          "additionalProperties": {"type": "array", "items": {"type": "string"}}
+        },
+        "max_retries": {"type": "integer", "minimum": 0},
+        "fix_retries": {"type": "integer", "minimum": 0},
+        "model_name": {"type": "string"},
+        "api_key": {"type": "string"},
+        "url": {"type": "string"},
+        "azure_deployment": {"type": "string"},
+        "azure_api_version": {"type": "string"},
+        "vertex_project": {"type": "string"},
+        "vertex_location": {"type": "string"},
+        "vertex_publisher": {"type": "string"},
+        "vertex_model": {"type": "string"},
+        "aws_access_key_id": {"type": "string"},
+        "aws_secret_access_key": {"type": "string"},
+        "aws_session_token": {"type": "string"},
+        "aws_region": {"type": "string"},
+        "connect_timeout": {"type": "integer", "minimum": 0},
+        "request_timeout": {"type": "integer", "minimum": 0},
+        "max_response_length": {"type": "integer", "minimum": 0},
+        "custom_headers": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        },
+        "fallback_stub_enabled": {"type": "boolean"},
+        "javac_validation": {"type": "boolean"},
+        "retry_initial_delay_ms": {"type": "integer", "minimum": 0},
+        "retry_backoff_multiplier": {"type": "number", "minimum": 0},
+        "rate_limit_qps": {"type": "number", "minimum": 0},
+        "circuit_breaker_threshold": {"type": "integer", "minimum": 0},
+        "circuit_breaker_reset_ms": {"type": "integer", "minimum": 0},
+        "deterministic": {"type": "boolean"},
+        "seed": {"type": "integer", "minimum": 0},
+        "system_message": {"type": "string"},
+        "smart_retry": {"$ref": "#/definitions/SmartRetryConfig"}
+      }
+    },
+    "SmartRetryConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "same_error_max_retries": {"type": "integer", "minimum": 0},
+        "total_retry_budget_per_task": {"type": "integer", "minimum": 0},
+        "non_recoverable_max_retries": {"type": "integer", "minimum": 0}
+      }
+    },
+    "ExecutionConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "per_task_isolation": {"type": "boolean"},
+        "logs_root": {"type": "string", "minLength": 1},
+        "runtime_fix_retries": {"type": "integer", "minimum": 0},
+        "flaky_reruns": {"type": "integer", "minimum": 0},
+        "unresolved_policy": {
+          "type": "string",
+          "enum": ["skip", "minimal", "SKIP", "MINIMAL"]
+        },
+        "test_stability_policy": {
+          "type": "string",
+          "enum": ["strict", "standard", "relaxed", "STRICT", "STANDARD", "RELAXED"]
+        }
+      }
+    },
+    "QualityGateConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "coverage_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+        "branch_coverage_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+        "block_blocker_findings": {"type": "boolean"},
+        "block_critical_findings": {"type": "boolean"},
+        "max_major_findings": {"type": "integer", "minimum": 0},
+        "allow_warnings": {"type": "boolean"},
+        "apply_to_new_code_only": {"type": "boolean"},
+        "min_pass_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "min_compile_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "enabled": {"type": "boolean"},
+        "coverage_tool": {
+          "type": "string",
+          "enum": ["jacoco", "cobertura", "JACOCO", "COBERTURA"]
+        },
+        "static_analysis_tools": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "spotbugs",
+              "pmd",
+              "errorprone",
+              "checkstyle",
+              "SPOTBUGS",
+              "PMD",
+              "ERRORPRONE",
+              "CHECKSTYLE"
+            ]
+          }
+        },
+        "coverage_report_path": {"type": "string"},
+        "static_analysis_report_paths": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "AuditConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "log_path": {"type": "string", "minLength": 1},
+        "include_raw": {"type": "boolean"}
+      }
+    },
+    "QuotaConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_tasks": {"type": ["integer", "null"], "minimum": 0},
+        "max_llm_calls": {"type": ["integer", "null"], "minimum": 0},
+        "on_exceed": {"type": "string", "enum": ["warn", "block", "WARN", "BLOCK"]}
+      }
+    },
+    "ContextAwarenessConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "test_dirs": {"type": "array", "items": {"type": "string"}},
+        "include_globs": {"type": "array", "items": {"type": "string"}},
+        "exclude_globs": {"type": "array", "items": {"type": "string"}},
+        "max_files": {"type": "integer", "minimum": 0},
+        "max_injected_chars": {"type": "integer", "minimum": 0},
+        "exclude_generated_tests": {"type": "boolean"},
+        "generated_output_dir": {"type": "string"}
+      }
+    },
+    "GenerationConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "marker": {"$ref": "#/definitions/GenerationMarkerConfig"}
+      }
+    },
+    "GenerationMarkerConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "tag": {"type": "string", "minLength": 1},
+        "scan_first_lines": {"type": "integer", "minimum": 1}
+      }
+    },
+    "OutputConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "format": {"$ref": "#/definitions/OutputFormatConfig"}
+      }
+    },
+    "OutputFormatConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tasks": {
+          "type": "string",
+          "enum": ["json", "yaml", "yml", "jsonl"]
+        },
+        "report": {
+          "type": "string",
+          "enum": ["json", "yaml", "yml", "markdown"]
+        }
+      }
+    },
+    "CliConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "color": {
+          "type": "string",
+          "enum": ["auto", "on", "off", "AUTO", "ON", "OFF"]
+        },
+        "interactive": {"$ref": "#/definitions/CliInteractiveConfig"}
+      }
+    },
+
+    "CliInteractiveConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {"type": "boolean"}
+      }
+    },
+    "RedactionConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["off", "report", "enforce", "OFF", "REPORT", "ENFORCE"]
+        },
+        "denylist_path": {"type": "string"},
+        "allowlist_path": {"type": "string"},
+        "detectors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["regex", "dictionary", "ml", "REGEX", "DICTIONARY", "ML"]
+          }
+        },
+        "mask_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+        "block_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+        "ml_endpoint_url": {"type": "string"}
+      }
+    },
+    "GovernanceConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "external_transmission": {"type": "string", "enum": ["allow", "deny", "ALLOW", "DENY"]},
+        "redaction": {"$ref": "#/definitions/RedactionConfig"}
+      }
+    },
+    "PipelineConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Controls which pipeline stages are executed.",
+      "properties": {
+        "stages": {
+          "type": "array",
+          "description": "Optional list of stage filters. When omitted or empty, all enabled workflow nodes are eligible. Official: analyze, generate, report, document, explore. Deprecated aliases: select, brittle_check.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "analyze",
+              "select",
+              "generate",
+              "brittle_check",
+              "report",
+              "document",
+              "explore"
+            ]
+          }
+        },
+        "workflow_file": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional path to workflow definition JSON file."
+        }
+      }
+    }
+  }
+}

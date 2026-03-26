@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "utgenerator config schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["project", "selection_rules", "llm"],
+  "properties": {
+    "AppName": { "type": "string" },
+    "version": { "type": "string" },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "repo_url": { "type": "string" },
+        "commit": { "type": "string" },
+        "build_tool": { "type": "string" },
+        "build_command": { "type": "string" },
+        "exclude_paths": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "selection_rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class_min_loc",
+        "class_min_method_count",
+        "method_min_loc",
+        "method_max_loc",
+        "max_methods_per_class",
+        "exclude_getters_setters"
+      ],
+      "properties": {
+        "class_min_loc": { "type": "integer", "minimum": 0 },
+        "class_min_method_count": { "type": "integer", "minimum": 0 },
+        "method_min_loc": { "type": "integer", "minimum": 0 },
+        "method_max_loc": { "type": "integer", "minimum": 1 },
+        "max_methods_per_class": { "type": "integer", "minimum": 1 },
+        "exclude_getters_setters": { "type": "boolean" },
+        "max_methods_per_package": { "type": ["integer", "null"], "minimum": 1 },
+        "exclude_annotations": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "deprioritize_annotations": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "complexity": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_cyclomatic": { "type": "integer", "minimum": 1 },
+            "strategy": {
+              "type": "string",
+              "enum": ["skip", "warn", "split", "specialized_prompt"]
+            },
+            "expected_tests_per_complexity": { "type": "number", "minimum": 0 },
+            "max_expected_tests": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+    "llm": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider"],
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["gemini", "local", "ollama", "python", "mock"]
+        },
+        "max_retries": { "type": "integer", "minimum": 0 },
+        "fix_retries": { "type": "integer", "minimum": 0 },
+        "url": { "type": "string" },
+        "model_name": { "type": "string" },
+        "api_key": { "type": "string" },
+        "python_path": { "type": "string" },
+        "script_path": { "type": "string" },
+        "adapter_path": { "type": "string" },
+        "connect_timeout": { "type": "integer", "minimum": 0 },
+        "request_timeout": { "type": "integer", "minimum": 0 },
+        "max_response_length": { "type": "integer", "minimum": 0 },
+        "custom_headers": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "fallback_stub_enabled": { "type": "boolean" },
+        "javac_validation": { "type": "boolean" }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "per_task_isolation": { "type": "boolean" },
+        "logs_root": { "type": "string" },
+        "runtime_fix_retries": { "type": "integer", "minimum": 0 },
+        "flaky_reruns": { "type": "integer", "minimum": 0 },
+        "unresolved_policy": {
+          "type": "string",
+          "enum": ["skip", "minimal"]
+        },
+        "test_stability_policy": {
+          "type": "string",
+          "enum": ["strict", "standard", "relaxed"]
+        }
+      }
+    }
+  }
+}

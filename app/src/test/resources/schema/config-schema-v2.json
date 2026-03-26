@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FUL Config Schema v2 (test)",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["project", "selection_rules", "llm", "new_required"],
+  "properties": {
+    "new_required": {"type": "string"},
+    "project": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {
+        "id": {"type": "string"}
+      }
+    },
+    "selection_rules": {"type": "object"},
+    "llm": {
+      "type": "object",
+      "required": ["provider"],
+      "properties": {
+        "provider": {"type": "string"}
+      }
+    }
+  }
+}

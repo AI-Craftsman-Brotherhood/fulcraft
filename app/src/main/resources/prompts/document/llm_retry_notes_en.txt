@@ -1,0 +1,13 @@
+The previous output had consistency issues. Regenerate the full document and fix all of these:
+{{VALIDATION_REASONS}}- Keep method heading count exactly {{METHOD_COUNT}}
+- Cautions must use only listed input items
+- Do not use [Inference]
+- Section 5 (Recommendations) must contain exactly one bullet: - None
+- Do not assert uncertain dynamic resolutions (verified=false or confidence<1.0)
+- Section 2 must include Class Name, Package, File Path, Class Type, Extends, Implements
+- Preconditions must be concrete expressions; avoid vague wording
+- Dependencies must not use placeholders such as others/etc.
+- Preconditions must not contain failure-side checks (e.g., !x.isSuccess())
+- Normal Flow must not contain early-return/failure/boundary paths
+- For no-arg methods, Preconditions should be 'None' by default; move reflection existence constraints to Error/Boundary or Open Questions
+- `x != null` / 'x must not be null' is allowed only when backed by explicit source checks
