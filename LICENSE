@@ -1,6 +1,6 @@
 FUL License (Proprietary / Source Available)
 
-Copyright (c) 2026 Example Corporation
+Copyright (c) 2026 AI Craftsman Brotherhood
 
 1. USAGE PERMISSION
    - Personal, student, and non-commercial use of this software is permitted free of charge.
@@ -9,11 +9,18 @@ Copyright (c) 2026 Example Corporation
 2. RESTRICTIONS
    - MODIFICATION: Modification of source code or binaries is prohibited without explicit written permission.
    - REDISTRIBUTION: Redistribution of this software, in whole or in part, modified or unmodified, is strictly prohibited.
+   - REVERSE ENGINEERING: Reverse engineering, decompilation, disassembly, or any attempt to derive the source code from compiled forms of this software is strictly prohibited.
 
-3. DISCLAIMER
-   - THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+3. COMMERCIAL LICENSE
+   No commercial license is granted under this agreement. Commercial use rights may only be obtained through a separate written agreement signed by the copyright holder. No implied, oral, or informal permission shall constitute a valid commercial license.
 
-4. CONTACT
+4. TERMINATION
+   This license is automatically and immediately terminated if you breach any of its terms. Upon termination, you must cease all use of the software and destroy all copies in your possession. The copyright holder is not required to provide notice prior to termination. Sections 2, 5, and 6 survive termination.
+
+5. DISCLAIMER
+   THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+6. CONTACT
    For commercial licensing inquiries or explicit permissions, please contact:
-   - Email: support@craftsmann-bro.com
-   - Web: https://craftsmann-bro.com/contact
+   - Email: support@craftsman-bro.com
+   - Web: https://craftsman-bro.com/en/contact/

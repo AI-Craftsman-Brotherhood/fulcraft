@@ -1,32 +1,16 @@
-# Build caches and outputs
+# =========================
+# Build & Gradle
+# =========================
 .gradle/
 .gradle-user/
 build/
-app/build/
 bin/
-target/
 out/
 reports/
 
-# Local runtime artifacts
-.ful/
-logs/
-app/logs/
-analysis.json
-tasks.jsonl
-results.jsonl
-run_log.txt
-*.log
-.attach_pid*
-
-# Local workspace metadata
-.codex/
-.trash/
-sample-legacy-project/
-docs-internal/
-.serena
-
-# IDE
+# =========================
+# IDE & Editor
+# =========================
 .idea/
 .vscode/
 *.iml
@@ -34,17 +18,39 @@ docs-internal/
 .project
 .settings/
 
-# Python
-.venv/
-__pycache__/
-*.pyc
+# =========================
+# OS
+# =========================
+.DS_Store
 
-# Local configuration and secrets
+# =========================
+# Java runtime artifacts
+# =========================
+*.log
+*.hprof
+hs_err_pid*.log
+.attach_pid*
+
+# =========================
+# Application runtime
+# =========================
+.ful/
+logs/
+app/logs/
+analysis.json
+tasks.jsonl
+results.jsonl
+run_log.txt
+
+# =========================
+# Local configuration & secrets
+# =========================
 config.json
-AGENTS.md
-CLAUDE.md
-agent-understanding.md
-TODO.md
-.env.local
 .env.*
 secrets.properties
+
+# =========================
+# Local workspace (not shared)
+# =========================
+CLAUDE.md
+

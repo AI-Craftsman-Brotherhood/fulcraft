@@ -1,6 +1,6 @@
-# FUL (Java)
+# fulcraft (Java)
 
-**Automated Unit Test Generator for Java Projects** — Combines LLMs and static analysis to automatically generate high-quality tests.
+**LLM-Powered Java Codebase Analysis, Documentation, and Exploration Tool** — Combines LLMs and static analysis to analyze, document, and explore Java projects.
 
 ---
 
@@ -11,15 +11,13 @@
 | 🤖 **LLM Support** | Supports Gemini, OpenAI, Anthropic, Azure OpenAI, Vertex AI, AWS Bedrock, Local (Ollama) |
 | 🔍 **Static Analysis** | Deep understanding of class structure and dependencies using JavaParser + Spoon |
 | 🖥️ **TUI/CLI** | Provides both an interactive TUI (`ful tui`) and a CLI (`ful cli`) for automation |
-| 🔄 **Self-Healing** | Detects compilation errors and test failures, and automatically attempts repairs |
-| 🛡️ **Brittle Test Detection** | Automatically detects brittle patterns like `Thread.sleep()` and Reflection |
 | 🚦 **CI Integration / Quality Check** | Visualization of results via GitHub Actions integration and HTML reports |
 
 ---
 
 ## 📦 Download
 
-Download the latest standalone build from [GitHub Releases](https://github.com/kenya-saginuma-wada/fulcraft/releases/latest).
+Download the latest standalone build from [GitHub Releases](https://github.com/AI-Craftsman-Brotherhood/fulcraft/releases/latest).
 
 - `ful-X.Y.Z.zip`: Recommended. Includes the executable JAR, `ful` / `ful.bat`, `config.example.json`, and license files.
 - `ful-X.Y.Z.jar`: Standalone executable fat JAR.
@@ -44,7 +42,7 @@ cd ful-X.Y.Z
 # 3. Run FUL against your target Java project
 cd /path/to/your-java-project
 /path/to/ful-X.Y.Z/ful init
-/path/to/ful-X.Y.Z/ful run --to GENERATE
+/path/to/ful-X.Y.Z/ful run
 ```
 
 If you prefer the standalone JAR, run `java -jar ful-X.Y.Z.jar --version`.
@@ -108,15 +106,9 @@ Do not commit machine-specific paths to this repository.
 | Configuration Reference | [docs/config.md](docs/config.md) |
 | Configuration Schema | [docs/config-schema.md](docs/config-schema.md) |
 | LLM Configuration Details | [docs/llm-configuration.md](docs/llm-configuration.md) |
-| Architecture Overview | [docs/architecture.md](docs/architecture.md) |
-| AST Overview | [docs/ast-overview.md](docs/ast-overview.md) |
 | Governance | [docs/governance.md](docs/governance.md) |
 | Security Scanning | [docs/security-scanning.md](docs/security-scanning.md) |
 | Troubleshooting | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| Auto Review Automation | [docs/auto-review-automation.md](docs/auto-review-automation.md) |
-| Prompt Customization | [docs/prompt-customization.md](docs/prompt-customization.md) |
-| Logging | [docs/logging.md](docs/logging.md) |
-| Test Quality Guidelines | [docs/test-quality-guidelines.md](docs/test-quality-guidelines.md) |
 | Quality Gates | [QUALITY_GATES.md](QUALITY_GATES.md) |
 | Release Procedures | [RELEASE.md](RELEASE.md) |
 
@@ -144,5 +136,5 @@ See [LICENSE](LICENSE) for details.
 ### Commercial License / Inquiries
 For commercial use (e.g., business use in an enterprise), please contact us at:
 
-*   **Email**: support@craftsmann-bro.com
+*   **Email**: support@craftsman-bro.com
 *   **Web**: https://craftsman-bro.com/en/contact/

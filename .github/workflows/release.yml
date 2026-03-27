@@ -97,8 +97,8 @@ jobs:
         
         # Upload each artifact, skipping if already exists
         cd app/build/distributions
-        
-        for file in ful-*.zip ful-*.jar *.sha256; do
+
+        for file in ful-*.zip ful-*.jar *.sha256 *.asc; do
           if [ -f "$file" ]; then
             echo "Uploading: $file"
             gh release upload "$TAG_NAME" "$file" --clobber || {
@@ -129,7 +129,7 @@ jobs:
         echo "|------|------|" >> $GITHUB_STEP_SUMMARY
         
         cd app/build/distributions
-        for file in ful-*.zip ful-*.jar *.sha256; do
+        for file in ful-*.zip ful-*.jar *.sha256 *.asc; do
           if [ -f "$file" ]; then
             SIZE=$(du -h "$file" | cut -f1)
             echo "| \`$file\` | $SIZE |" >> $GITHUB_STEP_SUMMARY

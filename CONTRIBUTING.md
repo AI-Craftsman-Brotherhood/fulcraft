@@ -6,11 +6,29 @@
 > We strictly limit code contributions to authorized personnel only.
 >
 > However, **Bug Reports are Welcome!**
-> If you find a bug, please [open an Issue](https://github.com/example/fulcraft/issues/new?template=bug_report.md). We appreciate your feedback.
+> If you find a bug, please [open an Issue](https://github.com/AI-Craftsman-Brotherhood/fulcraft/issues/new?template=bug_report.md). We appreciate your feedback.
+>
+> For questions or commercial licensing inquiries, contact us at **support@craftsman-bro.com**.
 
-This guide explains how to get started, the development workflow, code style and naming conventions, architectural principles and how to work effectively with AI‑generated code. Following these guidelines helps ensure consistency and maintainability across the codebase.
+---
 
-## 📚 Useful documentation
+## For Users: Bug Reports and Feedback
+
+We value your feedback. If you encounter a bug or have a suggestion:
+
+1. Search [existing Issues](https://github.com/AI-Craftsman-Brotherhood/fulcraft/issues) to avoid duplicates.
+2. [Open a new Issue](https://github.com/AI-Craftsman-Brotherhood/fulcraft/issues/new?template=bug_report.md) with a clear description, steps to reproduce, and relevant environment details.
+3. Please do **not** include sensitive information (API keys, credentials, personal data) in Issue reports.
+
+---
+
+## For Authorized Contributors: Development Guide
+
+> The following sections are intended for **authorized team members only**.
+
+This guide explains the development workflow, code style and naming conventions, architectural principles and how to work effectively with AI-generated code. Following these guidelines helps ensure consistency and maintainability across the codebase.
+
+### Useful documentation
 
 Before you begin, the following documents may be helpful:
 
@@ -22,11 +40,11 @@ Before you begin, the following documents may be helpful:
 | `docs/index.md` | Full documentation |
 | `CHANGELOG.md` | Release history and compatibility notes |
 
-## Getting started
+### Getting started
 
-1. Fork the repository on GitHub and clone your fork locally:
+1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/fulcraft.git
+   git clone https://github.com/AI-Craftsman-Brotherhood/fulcraft.git
    cd fulcraft
    ```
 
@@ -83,15 +101,15 @@ We follow the [Google Java Style Guide](https://google.github.io/styleguide/java
 *   **Classes and interfaces** use `UpperCamelCase` (PascalCase). Names are typically nouns or noun phrases (e.g. `Character`, `ImmutableList`). Test classes end with `Test`.
 *   **Methods** use `lowerCamelCase` and should be verbs or verb phrases (e.g. `sendMessage`, `stop`). Test method names may use underscores to separate logical components.
 *   **Constants** (static final and deeply immutable) use `UPPER_SNAKE_CASE`.
-*   **Fields** (non‑constant) use `lowerCamelCase`.
+*   **Fields** (non-constant) use `lowerCamelCase`.
 *   **Parameters and local variables** use `lowerCamelCase`.
 *   **Type parameters** use a single capital letter (`T`, `E`) or a descriptive name plus `T` (e.g. `RequestT`).
 
 ### Source file structure
 
-*   One top‑level class or interface per file; file name matches the class name plus `.java`.
-*   Files are encoded in UTF‑8 and use spaces for indentation (4 spaces per level). Do not use tabs.
-*   Do not use wildcard imports. Sort imports alphabetically within static and non‑static groups; separate the groups with one blank line.
+*   One top-level class or interface per file; file name matches the class name plus `.java`.
+*   Files are encoded in UTF-8 and use spaces for indentation (4 spaces per level). Do not use tabs.
+*   Do not use wildcard imports. Sort imports alphabetically within static and non-static groups; separate the groups with one blank line.
 
 ### Programming practices
 
@@ -103,26 +121,33 @@ We follow the [Google Java Style Guide](https://google.github.io/styleguide/java
 
 ## Project structure and architecture
 
-FUL uses a phase-based Feature Architecture located under `app/src/main/java/com/craftsmanbro/fulcraft`. New functionality should respect the following boundaries:
+FUL uses a plugin-centric, layered architecture located under `app/src/main/java/com/craftsmanbro/fulcraft`. New functionality should respect the following boundaries:
 
-*   **kernel** – pipeline control (`Pipeline`, `Step`, `RunContext`) and shared models (`kernel/model`).
-*   **feature** – phase packages (`analysis`, `document`, `exploration`, `reporting`) with a consistent layout (`flow`, `contract`, `model`, `core`, `adapter`, `stage`).
-    * `flow` is the entry point called from `Stage`.
-    * `contract` defines external interfaces (Port/Request/Response/Exception).
-    * `core` holds business logic and does not depend on I/O.
-    * `adapter` / `io` holds external dependencies (filesystem, network, build tools).
-    * `stage` manages the execution stages.
-*   **infrastructure** – shared infrastructure implementations (e.g., parsing, I/O, LLM clients) that fulfill the ports defined by the feature layer.
-*   **ui** – user interfaces, containing CLI entry points (`ui/cli`), TUI (`ui/tui`), and banners.
-*   **config / i18n / logging / plugins** – cross-cutting concerns and configurations.
-*   **Tests** – live under `app/src/test/java`, mirroring the package structure of the code under test.
+*   **kernel** - Pipeline orchestration engine.
+    * `pipeline/` - `Pipeline`, `PipelineRunner`, `Stage`, `RunContext`.
+    * `plugin/` - SPI-based plugin loading (`ActionPlugin`, `PluginRegistryLoader`).
+    * `workflow/` - Workflow definitions, retry/failure policies.
+*   **plugins** - Feature implementations (one per pipeline phase: `analysis`, `document`, `exploration`, `reporting`, `noop`), each with a consistent internal layout:
+    * `flow` - Phase orchestrator and entry points. No business logic.
+    * `contract` - Port interfaces and request/response types.
+    * `core` - Pure business logic and rules. No I/O or framework dependencies.
+    * `adapter` - Implements `contract` ports, delegates to `io`.
+    * `io` - Concrete file/API/process operations.
+    * `model` - Domain models and value objects.
+*   **infrastructure** - Shared technical building blocks (LLM clients, file I/O, JSON, caching, VCS, telemetry, security, etc.) that fulfill the ports defined by the plugins layer.
+*   **ui** - User-facing interfaces: CLI entry points (`ui/cli`), TUI (`ui/tui`), and banners.
+*   **config / i18n / logging** - Cross-cutting concerns and configurations.
+*   **Tests** - Live under `app/src/test/java`, mirroring the package structure of the code under test.
 
-**Strict Dependency Rule**:
-*   The **Feature** layer must NOT directly depend on the **Infrastructure** layer.
-*   Access to infrastructure (parsing, I/O, external APIs) must be mediated by **Port interfaces**.
+### Strict Dependency Rule
+
+*   The **plugins** layer must NOT directly depend on the **infrastructure** layer.
+*   Access to infrastructure (parsing, I/O, external APIs) must be mediated by **Port interfaces** defined in `contract`.
 *   Only **Adapter classes** (in `adapter` packages) are allowed to implement these ports and call infrastructure code directly.
+*   `core` must NOT depend on `adapter` or `io`.
+*   `kernel/pipeline` must NOT reference `plugins/*`.
 
-Refer to `docs/architecture.md` for diagrams and dependency rules.
+Refer to the Architecture section in `CLAUDE.md` for package structure and dependency rules.
 
 ## Testing guidelines
 
@@ -132,15 +157,15 @@ Refer to `docs/architecture.md` for diagrams and dependency rules.
     *   CI enforces instruction coverage (currently 80%).
     *   Focus on covering error paths and boundary conditions.
     *   Generate a build scan (`./gradlew :app:test --scan`) or check local JaCoCo reports (`app/build/reports/jacoco/`).
-*   **Hermetic tests**: Use small fixtures (e.g. under `baseline` or `app/src/test/resources/`) to keep tests self‑contained. Mock external dependencies (File I/O, LLM calls).
-    *   **Test Layers**:
+*   **Hermetic tests**: Use small fixtures (e.g. under `baseline` or `app/src/test/resources/`) to keep tests self-contained. Mock external dependencies (File I/O, LLM calls).
+*   **Test Layers**:
     *   **Unit** (`app/src/test`): Fast (<10s), focused on single classes. Mock simple dependencies. Run with `./gradlew :app:test`.
     *   **Integration** (`app/src/integrationTest`): Validate interaction with local infrastructure (DB, File System, Git). Run with `./gradlew :app:integrationTest`.
-    *   **E2E** (`app/src/e2eTest`): Full system regression using external APIs (LLM). Requires environment variables (e.g. `RUN_REGRESSION=true`). Run with `./gradlew :app:e2eTest`.
+    *   **E2E** (`app/src/e2eTest`): Full system regression using external APIs (LLM). Requires `RUN_E2E=true`. Run with `RUN_E2E=true ./gradlew :app:e2eTest`.
 
 ## Code review principles
 
-We strive to follow the intent of the [Google Engineering Practices Review Guide](https://google.github.io/eng-practices/review/). Reviews aim to improve the overall health of the codebase, not to criticise individuals. Evaluate whether a change improves the code even if it isn’t perfect.
+We strive to follow the intent of the [Google Engineering Practices Review Guide](https://google.github.io/eng-practices/review/). Reviews aim to improve the overall health of the codebase, not to criticise individuals. Evaluate whether a change improves the code even if it isn't perfect.
 
 ### Review attitude
 
@@ -168,7 +193,7 @@ Focus on:
 *   Style and consistency
 *   Documentation and operational impact
 
-See `reports/review_plan.md` and [Google's Review Guide](https://google.github.io/eng-practices/review/) for more details.
+See [Google's Review Guide](https://google.github.io/eng-practices/review/) for more details.
 
 ## Security and configuration
 
@@ -177,18 +202,14 @@ See `reports/review_plan.md` and [Google's Review Guide](https://google.github.i
 *   **Dependabot**: Automatic dependency updates are configured in `.github/dependabot.yml`. Review Dependabot PRs before merging.
 *   **Configuration files**: Keep `config.json` free of secrets. Validate user inputs and paths to avoid injection vulnerabilities.
 
-## AI‑assisted code generation
+## AI-assisted code generation
 
 AI tools can accelerate development, but all generated code must be reviewed for compliance:
 
 1.  State responsibilities and locations when prompting the AI. Specify the intended package and layer.
 2.  Check naming and formatting. Generated identifiers must follow the conventions described above.
 3.  Respect architectural boundaries. Generated classes should live in the correct package and depend only on allowed layers.
-4.  Ensure **SRP** – generated classes should not mix unrelated responsibilities.
-5.  Write meaningful tests – ask the AI to create at least one normal-case, boundary-case and error-case test. Avoid brittle assertions; verify behaviour and state.
-6.  Handle exceptions and logging – confirm generated code properly deals with errors.
+4.  Ensure **SRP** - generated classes should not mix unrelated responsibilities.
+5.  Write meaningful tests - ask the AI to create at least one normal-case, boundary-case and error-case test. Avoid brittle assertions; verify behaviour and state.
+6.  Handle exceptions and logging - confirm generated code properly deals with errors.
 7.  Run static analysis and tests before committing. Fix any issues flagged by SpotBugs, Checkstyle, PMD and JaCoCo.
-
-## Communication
-
-If you have questions or ideas, please open an issue in the issue tracker. We look forward to your contributions!

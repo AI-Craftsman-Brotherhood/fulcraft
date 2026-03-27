@@ -21,6 +21,8 @@ The schema defines types, required fields, and allowed values so configuration d
 | Key | Type | Required | Description |
 |---|---|---|---|
 | `schema_version`, `schemaVersion` | string or integer | No | Schema version |
+| `AppName` | string | No | Application name metadata |
+| `version` | string | No | Application version metadata |
 | `project` | object | Yes | Project information |
 | `pipeline` | object | No | Pipeline stage control |
 | `analysis` | object | No | Analysis settings |
@@ -45,6 +47,8 @@ The schema defines types, required fields, and allowed values so configuration d
 | `brittle_test_rules` | object | No | Fragile-test detection rules |
 
 > The schema uses `additionalProperties: false`, so unknown keys are rejected.
+>
+> **Note:** The v1 schema does not yet cover all code-supported sections. The following top-level keys are loaded by the application but are not validated by the v1 schema: `mocking`, `local_fix`, `log`, `docs`, `cache`, `interceptors`, `verification`, `brittle_test_rules`. If you use `schema_version: 1` alongside these sections, schema validation may reject them. Similarly, some fields within `analysis`, `selection_rules`, `generation`, `llm`, and `cli` exist in the application but are not yet reflected in the v1 schema.
 
 ---
 
@@ -83,7 +87,7 @@ The schema defines types, required fields, and allowed values so configuration d
 | `classpath.mode` | enum | `AUTO`, `STRICT`, `OFF` |
 | `spoon.no_classpath` | boolean | Spoon noClasspath switch |
 | `preprocess.mode` | enum | `OFF`, `AUTO`, `STRICT` |
-| `preprocess.tool` | enum | `AUTO`, `DELOMBOK`, `JAVAC_APT` |
+| `preprocess.tool` | enum | `AUTO`, `DELOMBOK` |
 | `preprocess.work_dir` | string | Preprocess working directory |
 | `preprocess.clean_work_dir` | boolean | Clean preprocess work directory |
 | `preprocess.include_generated` | boolean | Include generated sources in analysis |

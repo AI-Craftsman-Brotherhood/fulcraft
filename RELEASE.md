@@ -4,7 +4,7 @@ This document explains the release procedures for FUL.
 
 ---
 
-## 📋 Pre-Release Checklist
+## Pre-Release Checklist
 
 Before releasing a new version, please complete the following items:
 
@@ -38,12 +38,12 @@ The version number adheres to [Semantic Versioning (SemVer)](https://semver.org/
 - **PATCH (0.0.X)**: Backward-compatible bug fixes.
 
 ```text
-# Update the version in gradle/libs.versions.toml (or appropriate config file)
+# Update the version in gradle/libs.versions.toml
 [versions]
 ful = "X.Y.Z"  # New version number
 ```
 
-### 3. Verify All Tests and CI Success
+### 3. Verify Tests and CI
 
 ```bash
 # Run tests locally
@@ -64,53 +64,82 @@ ful = "X.Y.Z"  # New version number
 
 ---
 
-## 📦 Generating Distributions
+## Creating a Release
 
-### Step 1: Clean Build
+### Automated Release (Recommended)
+
+Pushing a tag triggers GitHub Actions to automatically build, sign, and publish a release.
+
+```bash
+# 1. Create a tag
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+
+# 2. Push the tag
+git push origin vX.Y.Z
+
+# Example
+git tag -a v0.2.0 -m "Release v0.2.0"
+git push origin v0.2.0
+```
+
+This triggers the `.github/workflows/release.yml` workflow, which performs:
+
+1. Set up the JDK 21 environment.
+2. Build distributions via `./gradlew distChecksum`.
+3. Verify checksums.
+4. Create a GitHub Release.
+5. Upload the artifacts (ZIP/JAR/SHA256, and `.asc` if signing is enabled).
+
+**Check Progress:**
+- Check the [Actions tab](https://github.com/AI-Craftsman-Brotherhood/fulcraft/actions/workflows/release.yml) on GitHub to view the workflow status.
+
+### Manual Release (Fallback)
+
+Use this method only if the automated release fails or you need to customize the release notes.
+
+1. Create and push a tag (same as above).
+2. Go to the **GitHub Repository** > **Releases** > **Draft a new release**.
+3. Under **Choose a tag**, select the tag you just created (`vX.Y.Z`).
+4. Enter `vX.Y.Z` as the **Release title**.
+5. Copy the contents of the relevant version from `CHANGELOG.md` into the **Release notes**.
+6. Download the artifacts from the failed workflow run, or build locally (see [Local Distribution Build](#local-distribution-build)).
+7. Drag and drop the artifact files into the release.
+8. Uncheck **Pre-release** if it's a stable release, then click **Publish release**.
+
+---
+
+## Post-Release Verification
+
+After releasing, ensure the following:
+
+- [ ] All the artifacts are visible on the release page.
+- [ ] The downloaded ZIP package unzips smoothly.
+- [ ] Running `./scripts/ful --version` prints the new version number.
+- [ ] The quickstart links in the `README.md` still work correctly.
+
+---
+
+## Appendix
+
+### Local Distribution Build
+
+When you need to build distribution artifacts locally (e.g., for manual release or local testing):
 
 ```bash
 ./gradlew clean
-```
-
-### Step 2: Generate Distributions, Signatures, and Checksums
-
-```bash
 ./gradlew distChecksum
 ```
 
-If you wish to enable GPG signing, configure the following environment variables:
-
-```bash
-export SIGNING_GNUPG_KEY_NAME="your-key-id"
-export SIGNING_GNUPG_PASSPHRASE="your-passphrase"
-```
-
-For in-memory signing, you can also use Gradle environment variables:
-
-```bash
-export ORG_GRADLE_PROJECT_signingKey="-----BEGIN PGP PRIVATE KEY BLOCK-----..."
-export ORG_GRADLE_PROJECT_signingPassword="your-passphrase"
-```
-
-In CI environments (e.g., GitHub Actions), the following variable names might be used instead:
-
-```bash
-export GPG_PRIVATE_KEY="-----BEGIN PGP PRIVATE KEY BLOCK-----..."
-export GPG_PASSPHRASE="your-passphrase"
-```
-
-This will generate the following files inside `app/build/distributions/`:
+This generates the following files inside `app/build/distributions/`:
 
 | File | Description |
-|---------|------|
+|------|-------------|
 | `ful-X.Y.Z.zip` | Distribution ZIP package (JAR + scripts + docs) |
 | `ful-X.Y.Z.zip.sha256` | SHA256 checksum for the ZIP |
-| `ful-X.Y.Z.zip.asc` | GPG signature for the ZIP |
 | `ful-X.Y.Z.jar` | Standalone Fat JAR |
 | `ful-X.Y.Z.jar.sha256` | SHA256 checksum for the JAR |
-| `ful-X.Y.Z.jar.asc` | GPG signature for the JAR |
 
-### Step 3: Verify Checksums and Signatures
+**Verify checksums:**
 
 ```bash
 cd app/build/distributions
@@ -120,7 +149,32 @@ sha256sum -c ful-X.Y.Z.jar.sha256
 
 Ensure both commands output an `OK` message.
 
-**Verify GPG Signatures:**
+### GPG Signing (Optional)
+
+GPG signing is supported but not enabled by default. To enable it, configure one of the following environment variable sets before running `./gradlew distChecksum`:
+
+**Option A: GnuPG agent (local machine with GPG keyring)**
+
+```bash
+export SIGNING_GNUPG_KEY_NAME="your-key-id"
+export SIGNING_GNUPG_PASSPHRASE="your-passphrase"
+```
+
+**Option B: In-memory key (CI environments)**
+
+```bash
+export GPG_PRIVATE_KEY="-----BEGIN PGP PRIVATE KEY BLOCK-----..."
+export GPG_PASSPHRASE="your-passphrase"
+```
+
+When signing is enabled, additional `.asc` files are generated alongside the ZIP and JAR:
+
+| File | Description |
+|------|-------------|
+| `ful-X.Y.Z.zip.asc` | GPG signature for the ZIP |
+| `ful-X.Y.Z.jar.asc` | GPG signature for the JAR |
+
+**Verify GPG signatures:**
 
 ```bash
 gpg --verify ful-X.Y.Z.zip.asc ful-X.Y.Z.zip
@@ -129,137 +183,11 @@ gpg --verify ful-X.Y.Z.jar.asc ful-X.Y.Z.jar
 
 Ensure a `Good signature` message is displayed.
 
-## 🔗 Future Supply Chain Security Improvements
-
-- Integration with SLSA provenance and Sigstore-based signing will be considered.
-- These procedures will be updated once further implementations are introduced.
-
 ---
 
-## 🚀 Creating a GitHub Release
-
-### 🤖 Method 1: Automated Release (Recommended)
-
-Simply pushing a new tag will trigger GitHub Actions to automatically build and release.
-
-```bash
-# 1. Create a tag
-git tag -a vX.Y.Z -m "Release vX.Y.Z"
-
-# 2. Push the tag
-git push origin vX.Y.Z
-```
-
-This triggers the `.github/workflows/release.yml` workflow, performing the following automated steps:
-
-1. ✅ Set up the JDK 21 environment.
-2. ✅ Build distributions via `./gradlew distChecksum`.
-3. ✅ Verify checksums.
-4. ✅ Create a GitHub Release.
-5. ✅ Upload the artifacts (ZIP/JAR/SHA256/asc).
-
-**Check Progress:**
-- Check the [Actions tab](../../actions/workflows/release.yml) on GitHub to view the workflow status.
-
-### 📝 Method 2: Manual Release
-
-If the automated release fails for any reason or you need to customize the release notes manually:
-
-#### Step 1: Create a Release Tag
-
-```bash
-# Create an annotated tag
-git tag -a vX.Y.Z -m "Release vX.Y.Z"
-
-# Example
-git tag -a v1.0.0 -m "Release v1.0.0"
-```
-
-#### Step 2: Push the Tag
-
-```bash
-git push origin vX.Y.Z
-
-# Example
-git push origin v1.0.0
-```
-
-#### Step 3: Create the Release on GitHub
-
-1. Go to the **GitHub Repository**.
-2. Click on **Releases** → **Draft a new release**.
-3. Under **Choose a tag**, select the tag you just created (`vX.Y.Z`).
-4. Enter `vX.Y.Z` as the **Release title**.
-5. Copy the contents of the relevant version from `CHANGELOG.md` into the **Release notes**.
-
-#### Step 4: Upload Artifacts
-
-Drag and drop the following files into the release:
-
-- `ful-X.Y.Z.zip`
-- `ful-X.Y.Z.zip.sha256`
-- `ful-X.Y.Z.zip.asc`
-- `ful-X.Y.Z.jar`
-- `ful-X.Y.Z.jar.sha256`
-- `ful-X.Y.Z.jar.asc`
-
-#### Step 5: Publish the Release
-
-- Uncheck **Pre-release** if it's a stable release.
-- Click **Publish release**.
-
----
-
-## ✅ Post-Release Verification
-
-After releasing, ensure the following:
-
-- [ ] All the artifacts are visible on the release page.
-- [ ] The downloaded ZIP package unzips smoothly.
-- [ ] Running `./ful --version` or `./ful-cli --version` prints the new version number.
-- [ ] The quickstart links in the `README.md` still work correctly.
-
----
-
-## 🔮 Future Extensions
-
-### Publishing to Maven Central
-
-If the project is to be published as a library to Maven Central, refer to the following resources:
-
-- [Gradle Publishing to Maven Central](https://docs.gradle.org/current/userguide/publishing_maven.html)
-- [Sonatype OSSRH Guide](https://central.sonatype.org/publish/publish-guide/)
-- [gradle-nexus-publish-plugin](https://github.com/gradle-nexus/publish-plugin)
-
-**Prerequisites:**
-1. Create a Sonatype OSSRH account.
-2. Generate and publish a GPG key.
-3. Add the `maven-publish` plugin to your `build.gradle.kts`.
-
-### Distributing Docker Images
-
-If publishing an image to Docker Hub or GitHub Container Registry (GHCR):
-
-- [Docker Hub Quick Start](https://docs.docker.com/docker-hub/quickstart/)
-- [Working with the Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
-
-**Dockerfile Example:**
-```dockerfile
-FROM eclipse-temurin:21-jre-alpine
-COPY app/build/libs/ful-*.jar /app/ful.jar
-ENTRYPOINT ["java", "-jar", "/app/ful.jar"]
-```
-
-### GitHub Actions Workflow
-
-The automatic release flow is defined within `.github/workflows/release.yml`.
-See [release.yml](../.github/workflows/release.yml) for details.
-
----
-
-## 📞 Support
+## Support
 
 If any issues occur during the release process, please consult the following:
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) - Development Guidelines.
-- [GitHub Issues](https://github.com/your-org/fulcraft/issues) - Bug tracking and questions.
+- [GitHub Issues](https://github.com/AI-Craftsman-Brotherhood/fulcraft/issues) - Bug tracking and questions.

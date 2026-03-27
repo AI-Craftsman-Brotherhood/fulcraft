@@ -39,15 +39,18 @@ ful init
 
 ```json
 {
+  "schema_version": 1,
   "project": { "id": "my-project" },
-  "analysis": {},
-  "selection_rules": {},
-  "llm": {},
-  "output": {
-    "format": {
-      "tasks": "json",
-      "report": "markdown"
-    }
+  "selection_rules": {
+    "class_min_loc": 10,
+    "class_min_method_count": 1,
+    "method_min_loc": 1,
+    "method_max_loc": 1000,
+    "max_methods_per_class": 5,
+    "exclude_getters_setters": false
+  },
+  "llm": {
+    "provider": "gemini"
   },
   "pipeline": {
     "stages": ["analyze", "generate", "report"]
@@ -61,6 +64,7 @@ ful init
 
 | Category | Purpose | Required |
 |---|---|---|
+| `schema_version` | Config schema version (integer or SemVer string, must be >= 1) | No |
 | `project` | Project metadata and root paths | Yes |
 | `analysis` | Source-code analysis behavior | No |
 | `selection_rules` | Rules for choosing test targets | Yes |
@@ -137,7 +141,7 @@ Provider and model settings.
 
 | Key | Type | Default | Description |
 |---|---|---|---|
-| `provider` | enum | `gemini` | Provider ID |
+| `provider` | enum | `gemini` | Provider ID. Supported values: `gemini`, `openai`, `openai-compatible` (alias: `openai_compatible`), `anthropic`, `azure-openai` (alias: `azure_openai`), `vertex` (aliases: `vertex-ai`, `vertex_ai`), `bedrock`, `local` (aliases: `ollama`, `vllm`), `mock` |
 | `allowed_providers` | array of string | unset | Allow-list of providers |
 | `allowed_models` | map | unset | Allow-list of models per provider |
 | `model_name` | string | - | Model name |
@@ -160,7 +164,7 @@ Provider and model settings.
 | `circuit_breaker_threshold` | integer | `5` | Circuit-breaker threshold |
 | `circuit_breaker_reset_ms` | number | `30000` | Circuit-breaker reset time |
 | `deterministic` | boolean | `true` | Reproducible generation mode |
-| `seed` | integer | `42` | Seed for deterministic mode |
+| `seed` | integer | unset | Seed for deterministic mode |
 | `temperature` | number | unset | Sampling temperature |
 | `max_tokens` | integer | unset | Max generation tokens |
 | `system_message` | string | unset | System-message override |
