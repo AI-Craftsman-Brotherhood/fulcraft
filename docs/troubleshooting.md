@@ -45,21 +45,6 @@ Required fields vary by `llm.provider`.
 | `bedrock` | `'llm.aws_access_key_id' or AWS_ACCESS_KEY_ID ...` | `model_name`, AWS credentials, `aws_region` |
 | `local` / `ollama` | `'llm.url' is required for local/ollama provider` | `url`, `model_name` |
 
-## `ful run` Does Not Generate Tests
-
-The default behavior of `ful run` depends on whether `pipeline.workflow_file` is configured.
-
-- Without `pipeline.workflow_file`: `ANALYZE -> DOCUMENT -> REPORT -> EXPLORE`
-- With `pipeline.workflow_file`: `GENERATE` in workflow-node execution mode
-
-If you pass `--steps`, `--from`, or `--to`, those CLI settings take precedence.
-To include test generation explicitly:
-
-```bash
-./scripts/ful run --to GENERATE
-./scripts/ful run --steps ANALYZE,GENERATE,REPORT
-```
-
 ## Configuration File Errors
 
 ### Loading Order
@@ -74,7 +59,7 @@ To include test generation explicitly:
 |---|---|---|
 | Explicit config file missing | `Configuration file not found: ...` | Fix the `-c` path |
 | JSON Schema mismatch | `Config schema validation failed for: ...` | Check against `docs/config-schema.md` |
-| Unknown keys | `Unknown top-level configuration keys: ...` | Match key names with `config.example.json` |
+| Unknown keys | `Unknown keys in '<section>': ...` | Match key names with `config.example.json` |
 | Wrong section type | `'<section>' section must be an object/mapping.` | Convert the section to an object |
 | Invalid provider value | `'llm.provider' must be one of: ...` | Use a supported provider name |
 
@@ -92,7 +77,7 @@ To include test generation explicitly:
 |---|---|---|
 | Run directory missing | `Runs directory not found: ...` | Run `ful run` first or pass a tasks file with `--input` |
 | Specified run missing | `Run directory not found: ...` | Recheck `--run-id` |
-| Tasks file missing | `Task file not found: ...` | Check `.ful/runs/<runId>/plan/` |
+| Tasks file missing | `Tasks file not found in: ...` | Check `.ful/runs/<runId>/plan/` |
 | Wrong run for analysis-only report | `analysis_report.error.run_dir_not_found` / `analysis_dir_not_found` | Verify the run ID used with `ful report --run-id <id>` |
 
 Example for finding the latest run:
@@ -126,5 +111,4 @@ A slow first run is often expected because dependency resolution is still warmin
 - [CLI Guide](cli.md)
 - [Configuration Reference](config.md)
 - [Config Schema](config-schema.md)
-- [LLM Configuration](llm-configuration.md)
 - [Quality Gates](../QUALITY_GATES.md)

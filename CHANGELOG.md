@@ -27,15 +27,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.0] - 2026-01-05
+## [0.1.0] - 2026-03-27
 
 ### Added
-- Dynamic selection prep and SPI stabilization for selection-related extensions.
-- AST-based DynamicResolver with confidence scoring for dynamic string and reflection analysis.
-- Document generation and reporting flows integrated into the CLI pipeline.
-
-### Changed
-- Pipeline wiring and stage orchestration clarified around `analyze` -> `select` -> `generate` -> `run` -> `report`.
+- Initial release of FUL — LLM-powered Java codebase analysis, documentation, and exploration tool.
+- CLI pipeline with pipeline stages: `analyze`, `document`, `explore`, `report`.
+- Static analysis via JavaParser and Spoon with AST-based DynamicResolver and confidence scoring.
+- LLM-driven documentation generation for Java projects.
+- Interactive codebase exploration via TUI (Lanterna).
+- Multi-provider LLM support (OpenAI, Anthropic, Gemini, Azure OpenAI, Vertex AI, AWS Bedrock, Ollama).
+- SPI-based plugin architecture for extensible pipeline stages.
+- Resilience4j integration for retry, circuit breaker, and rate limiting on LLM calls.
+- Run summaries, quality gate evaluation, and HTML report generation.
+- Configuration via `config.json` with JSON Schema validation.
 
 ### Compatibility
 - Requires Java 21 or later.
@@ -43,20 +47,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Config schema `v1` (`config-schema-v1.json`).
 
 ### Notes
-- No breaking changes reported.
-
----
-
-## [0.1.0] - 2025-12-15
-
-### Added
-- Initial OSS release with CLI pipeline (`analyze`, `select`, `generate`, `run`, `report`).
-- LLM-backed test generation with deterministic mode and retry handling.
-- Static analysis via JavaParser and Spoon.
-
-### Compatibility
-- Requires Java 21 or later.
-- Config schema `v1` baseline.
-
-### Notes
-- Initial release; no breaking changes reported.
+- Initial release.

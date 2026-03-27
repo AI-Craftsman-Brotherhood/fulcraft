@@ -8,7 +8,7 @@ Thank you for helping keep the FUL project secure. Please follow the guidance be
 - **GitHub Security Advisories**: Use the repository's "Report a vulnerability" button under the Security tab.
 
 **Alternative channel**:
-- **Email**: support@craftsmann-bro.com
+- **Email**: support@craftsman-bro.com
 
 If you are unsure whether your issue is security-related, please use the preferred channel so we can triage it appropriately.
 
@@ -52,23 +52,33 @@ Protected branches (e.g., `main`) enforce the following constraints:
 - No direct pushes; changes must be made via Pull Requests.
 - Minimum of **two approvals** for changes to release, security, or CI configurations.
 - Required status checks must pass before merging, including:
-  - `CI / Build`
-  - `CI / Check` (Static Analysis)
-  - `Dependency Review` / `Dependency-Check`
+  - `CI / build` (Static Analysis, Unit Tests, OWASP Dependency-Check, JaCoCo)
+  - `Build and Test / build`
+  - `Dependency Review / dependency-review`
 
-See `docs/governance.md` for our overarching security workflow and checklist.
+See `docs/governance.md` for vulnerability response procedures and `QUALITY_GATES.md` for CI enforcement details.
 
 ## Review Process
 
 - All changes require review by at least one maintainer.
 - Security-related changes should have at least two approvals whenever possible.
-- CI quality gates must pass before merge, including vulnerability and secret scanning validations (see `QUALITY_GATES.md`).
+- CI quality gates must pass before merge, including vulnerability scanning validations (see `QUALITY_GATES.md`). Secret scanning is currently performed locally before opening a PR (see `docs/security-scanning.md`).
 
 ## Secret Management
 
 - **Do not** commit secrets, credentials, or API keys to the repository.
 - Store secrets in environment variables or a secret manager (e.g., GitHub Actions Secrets for CI).
 - If there is any risk of exposure, rotate credentials immediately.
+
+### LLM API Keys
+
+FUL connects to external LLM providers (OpenAI, Anthropic, Gemini, Azure OpenAI, Vertex AI, AWS Bedrock, Ollama) on behalf of the user. Handle provider API keys with particular care:
+
+- **Environment variables only**: Supply keys via `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, etc. Never write literal key values in `config.json`.
+- **Variable interpolation**: Use the `${ENV_VAR}` syntax in configuration files (see `config.example.json`).
+- **CI/CD**: Store API keys in GitHub Actions Secrets. The generated workflow template (`ful-quality-gate.yml.tmpl`) expects secrets such as `GEMINI_API_KEY`, `OPENAI_API_KEY`, `AZURE_OPENAI_API_KEY`, and `ANTHROPIC_API_KEY`.
+- **No logging**: API keys must never appear in log output, error messages, or telemetry data.
+- **Transmission control**: Use the `governance.external_transmission: deny` setting to block outbound LLM requests entirely when operating in restricted environments. See `docs/governance.md` for details.
 
 ## Responsible Disclosure
 
@@ -83,8 +93,8 @@ We provide security updates for the following:
 
 | Version | Supported |
 | ------- | --------- |
-| `latest`| ✅ Yes    |
-| `< latest`| ❌ No     |
+| `latest`   | ✅ Yes |
+| `< latest` | ❌ No  |
 
 If you are using an older version, please upgrade to the latest release to receive security fixes.
 

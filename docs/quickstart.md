@@ -1,6 +1,6 @@
 # FUL Quickstart Guide
 
-This guide walks through FUL setup and a first test-generation run.
+This guide walks through FUL setup and a first analysis run.
 
 ---
 
@@ -9,7 +9,7 @@ This guide walks through FUL setup and a first test-generation run.
 1. [Prerequisites](#prerequisites)
 2. [Initial Setup](#initial-setup)
 3. [Interactive Setup with `ful init`](#interactive-setup-with-ful-init)
-4. [Generating and Running Tests](#generating-and-running-tests)
+4. [Running FUL](#running-ful)
 5. [Interactive Mode](#interactive-mode)
 6. [Troubleshooting](#troubleshooting)
 7. [Cache Management](#cache-management)
@@ -54,7 +54,7 @@ FUL builds with **Gradle 8.x**, but you normally do not need to install it separ
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/fulcraft.git
+git clone https://github.com/AI-Craftsman-Brotherhood/fulcraft.git
 cd fulcraft
 ```
 
@@ -115,7 +115,7 @@ java -jar /path/to/fulcraft/app/build/libs/ful-*.jar run --project-root /path/to
 # Or move into the target project first
 cd /path/to/your-gradle-project
 /path/to/fulcraft/scripts/ful init
-/path/to/fulcraft/scripts/ful run --to GENERATE
+/path/to/fulcraft/scripts/ful run
 ```
 
 FUL uses the target project's `gradlew` to resolve the classpath automatically.
@@ -134,7 +134,7 @@ FUL uses the target project's `mvnw` or `mvn` to resolve the classpath automatic
 
 ## Interactive Setup With `ful init`
 
-Run `ful init` in the Java project where you want to generate tests.
+Run `ful init` in the Java project you want to analyze.
 
 ```bash
 cd /path/to/your-java-project
@@ -149,53 +149,44 @@ The wizard supports `gemini`, `openai`, `anthropic`, and `local` directly. For o
 
 ---
 
-## Generating and Running Tests
+## Running FUL
 
-FUL has two common execution styles. The following commands assume you run them from the target project root. If not, pass `-p, --project-root`.
+The following commands assume you run them from the target project root. If not, pass `-p, --project-root`.
 
-### 1. `ful run --to GENERATE`
+### 1. Default `ful run`
 
-This runs analysis and generation, then stops after writing test files.
+The default pipeline runs stages defined in `default-workflow.json` as a DAG:
 
-```bash
-# Generate tests for all source files
-$FUL_HOME/scripts/ful run --to GENERATE
-
-# Generate tests only for a specific file
-$FUL_HOME/scripts/ful run --to GENERATE -f MyService.java
-
-# Dry-run without file changes
-$FUL_HOME/scripts/ful run --to GENERATE --dry-run
+```text
+ANALYZE ─┬─→ REPORT
+         └─→ DOCUMENT ──→ EXPLORE
 ```
 
-### 2. Default `ful run`
-
-The default behavior depends on whether `pipeline.workflow_file` is configured.
+`REPORT` and `DOCUMENT` both depend on `ANALYZE` and may run in parallel.
 
 ```bash
 $FUL_HOME/scripts/ful run
+
+# Analyze a specific directory
+$FUL_HOME/scripts/ful run -d src/main/java/com/example/core/
+
+# Dry-run without writing files
+$FUL_HOME/scripts/ful run --dry-run
 ```
 
-- Without `pipeline.workflow_file`, the default steps are `ANALYZE -> DOCUMENT -> REPORT -> EXPLORE`.
-- With `pipeline.workflow_file`, the default step is `GENERATE` in workflow-node mode.
-- If you specify `--steps`, `--from`, or `--to`, those CLI values take precedence.
-
-If you want generation or reporting explicitly, specify them through `--steps`, for example `ANALYZE,GENERATE,REPORT`.
-
-### 3. Advanced Pipeline Control
+### 2. Advanced Pipeline Control
 
 ```bash
 # Analysis only
 $FUL_HOME/scripts/ful run --steps ANALYZE
 
-# Analysis through generation
-$FUL_HOME/scripts/ful run --to GENERATE
+# Analysis and reporting
+$FUL_HOME/scripts/ful run --steps ANALYZE,REPORT
 
-# Analysis -> generation -> report
-$FUL_HOME/scripts/ful run --steps ANALYZE,GENERATE,REPORT
+# Analysis through documentation
+$FUL_HOME/scripts/ful run --to DOCUMENT
 ```
 
-Stages after `GENERATE` depend on `ANALYZE` artifacts, so include `ANALYZE` when you explicitly set `--steps`.
 Use `ful steps` to inspect the available step list.
 
 You can also define default active stages in `config.json`:
@@ -203,28 +194,27 @@ You can also define default active stages in `config.json`:
 ```json
 {
   "pipeline": {
-    "stages": ["analyze", "generate", "report"]
+    "stages": ["analyze", "document", "report"]
   }
 }
 ```
 
-### Checking Generated Results
-
-Generated tests are typically written under `src/test/java`.
+### Checking Results
 
 ```bash
 RUN_ID=$(ls -1t .ful/runs | head -1)
 cat ".ful/runs/${RUN_ID}/report/report.md"
 ```
 
-Common artifact locations:
+Artifacts are stored under `.ful/runs/<runId>/actions/<pluginId>/<nodeId>/`. Common locations:
 
-- Analysis results: `.ful/runs/<runId>/analysis/`
-- Task files: `.ful/runs/<runId>/plan/tasks.*`
-- Reports: `.ful/runs/<runId>/report/report.md` and `.ful/runs/<runId>/report/summary.json`
-- Logs: `.ful/runs/<runId>/logs/ful.log` and `.ful/runs/<runId>/logs/llm.log`
+- Analysis results: `.ful/runs/<runId>/actions/analyze-builtin/analyze/`
+- Documentation: `.ful/runs/<runId>/actions/document-builtin/document/`
+- Reports: `.ful/runs/<runId>/actions/report-builtin/report/`
+- Exploration: `.ful/runs/<runId>/actions/explore-builtin/explore/`
+- Logs: `.ful/runs/<runId>/logs/`
 
-If you want JSON reporting, set `output.format.report: "json"` and inspect `.ful/runs/<runId>/report/summary.json`.
+If you want JSON reporting, set `output.format.report: "json"` and inspect the report artifact directory.
 
 ---
 
@@ -266,4 +256,3 @@ rm -rf .ful/cache
 
 - [Configuration Guide](config.md)
 - [Security and Governance](governance.md)
-- [Unified Structure Guide](design/unified-structure-guide.md)

@@ -55,33 +55,23 @@ For LLM transmission policy and prompt redaction, see [governance.md](governance
 
 ### Secret Masking
 
-`com.craftsmanbro.fulcraft.infrastructure.security.SecretMasker` automatically replaces sensitive data in logs and console output with `****`.
+Sensitive data in logs and CLI error output is automatically replaced with `****`.
 
-Patterns include:
+Masked patterns include:
 
-- API keys and bearer tokens such as `x-api-key` and `Authorization: Bearer ...`
+- API keys and bearer tokens (e.g. `x-api-key`, `Authorization: Bearer ...`)
 - PEM private keys
 - JWT-like dot-separated Base64 tokens
 - High-entropy long random-looking strings
 
-Notes:
-
-- Log masking is applied through `MaskedPatternLayout`.
-- CLI error output also passes through `SecretMasker`.
-
 ### Sensitive Logic Detection
 
-`com.craftsmanbro.fulcraft.kernel.pipeline.interceptor.SecurityFilterInterceptor` runs as a PRE hook for the selection phase.
-Because `SELECT` is executed as part of a `generate` workflow target such as `junit-select`, the interceptor runs before the plugin's `SelectStage` call.
+Before the generate phase, FUL scans analyzed methods for security-sensitive operations and warns the user, especially when code might be sent to an external LLM.
 
-- **Goal**: warn before testing authentication, authorization, encryption, and similar methods, especially when code might be sent to an external LLM.
-- **Detection logic**:
+- **Detection criteria**:
   - Method names containing terms such as `password`, `secret`, `token`, `credential`, `encrypt`, `decrypt`, `authenticate`, `authorize`, `apikey`, `privatekey`, `signin`, `signout`, `login`, `logout`
   - Annotations such as `@PreAuthorize`, `@PostAuthorize`, `@Secured`, `@RolesAllowed`, `@PermitAll`, `@DenyAll`, `@Encrypt`, `@Decrypt`
-- **Behavior**:
-  - Matching method IDs are stored in `RunContext` as `security.sensitive.method_ids`
-  - `SelectStage` marks them as `selected=false` with reason `security_sensitive`
-  - Warnings are also emitted in logs and user-visible output
+- **Behavior**: matching methods are flagged and warnings are emitted in logs and run output
 
 ---
 
@@ -109,7 +99,3 @@ This is the standard flow when automated scanning detects a vulnerability.
   - `dependency-check.yml`
   - `dependency-review.yml`
   - `release.yml`
-- Source code:
-  - `app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/security/impl/SecretMasker.java`
-  - `app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/logging/impl/MaskedPatternLayout.java`
-  - `app/src/main/java/com/craftsmanbro/fulcraft/feature/analysis/interceptor/SecurityFilterInterceptor.java`

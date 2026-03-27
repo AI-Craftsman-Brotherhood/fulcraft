@@ -96,7 +96,6 @@ jobs:
         run: ./gradlew --no-daemon :app:shadowJar
 
   codeql:
-    if: false
     runs-on: ubuntu-latest
     permissions:
       actions: read

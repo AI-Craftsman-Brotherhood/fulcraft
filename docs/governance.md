@@ -14,10 +14,6 @@ This document covers only behavior that is active in the current implementation.
 ### Overview
 
 If you set `governance.external_transmission: deny`, FUL blocks requests to external LLM providers.
-Enforcement is handled by `LlmGovernanceEnforcingClient`.
-
-- Implementation: `app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/llm/decorator/LlmGovernanceEnforcingClient.java`
-- Provider classification: `app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/llm/LlmProviderRegistry.java`
 
 ### Behavior When Set to `deny`
 
@@ -30,14 +26,13 @@ Enforcement is handled by `LlmGovernanceEnforcingClient`.
 | `vertex`, `vertex-ai`, `vertex_ai` | Blocked |
 | `bedrock` | Blocked |
 | `local`, `ollama`, `vllm` | Allowed |
-| `mock` | Allowed |
 | Unknown provider names | Blocked and treated as external |
 
 ### Example Error Message
 
 ```text
-governance.external_transmission=deny prohibits external LLM transmission.
-Provider: gemini. Set governance.external_transmission to 'allow' to permit external transmission.
+governance.external_transmission=deny により外部LLM送信は禁止されています。
+Provider: gemini. 外部送信を許可するには governance.external_transmission を 'allow' に設定してください。
 ```
 
 ### Example Configuration
@@ -59,14 +54,8 @@ Provider: gemini. Set governance.external_transmission to 'allow' to permit exte
 
 ### Overview
 
-`PromptRedactionService` detects, masks, or blocks sensitive content before prompt data is sent to an LLM.
+FUL can detect, mask, or block sensitive content before prompt data is sent to an LLM.
 The detector chain has three families: `regex`, `dictionary`, and `ml`.
-
-- Implementation: `app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/llm/safety/redaction/PromptRedactionService.java`
-- Detectors:
-  - `app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/llm/safety/redaction/detector/RegexDetector.java`
-  - `app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/llm/safety/redaction/detector/DictionaryDetector.java`
-  - `app/src/main/java/com/craftsmanbro/fulcraft/infrastructure/llm/safety/redaction/detector/MlNerDetector.java`
 
 ### Modes
 
@@ -124,8 +113,8 @@ internal-api-key
 
 ```text
 # false-positive suppression
-craftsmann-bro.com
-support@craftsmann-bro.com
+craftsman-bro.com
+support@craftsman-bro.com
 localhost
 ```
 
@@ -156,25 +145,12 @@ Response:
 }
 ```
 
-## 3. Runtime Enforcement Points
-
-External transmission control and redaction are mainly applied in LLM execution paths.
-
-- Transmission control decorator:
-  - `DefaultServiceFactory` applies `LlmGovernanceEnforcingClient`
-  - Example: `app/src/main/java/com/craftsmanbro/fulcraft/ui/cli/wiring/DefaultServiceFactory.java`
-- Redaction:
-  - `PromptRedactionService` is applied inside LLM call flows
-  - Examples:
-    - `app/src/main/java/com/craftsmanbro/fulcraft/feature/document/flow/DocumentFlow.java`
-    - `app/src/main/java/com/craftsmanbro/fulcraft/feature/document/adapter/LlmDocumentGenerator.java`
-
-## 4. OSS Maintainer Vulnerability Response Flow
+## 3. OSS Maintainer Vulnerability Response Flow
 
 See [security-scanning.md](security-scanning.md) for the broader operating model.
 This section defines how to respond when a vulnerability is reported externally.
 
-### 4.1 End-to-End Flow
+### 3.1 End-to-End Flow
 
 1. Intake
 2. Triage
@@ -184,7 +160,7 @@ This section defines how to respond when a vulnerability is reported externally.
 6. Release
 7. Advisory publication
 
-### 4.2 Severity Guide
+### 3.2 Severity Guide
 
 - Baseline: CVSS v3.1
 - Rough categories:
@@ -193,18 +169,18 @@ This section defines how to respond when a vulnerability is reported externally.
   - Medium: limited information exposure or high attack difficulty
   - Low: narrow impact
 
-### 4.3 Non-Disclosure Before Fix
+### 3.3 Non-Disclosure Before Fix
 
 - Do not put details or PoCs in public issues or PRs.
 - Do not discuss exploit details on public channels.
 - Do not publish logs or artifacts that contain sensitive data.
 
-### 4.4 Branch / Advisory Handling
+### 3.4 Branch / Advisory Handling
 
 - Option A: fix in a private branch and merge right before disclosure
 - Option B: use a GitHub Security Advisory draft and a private fork
 
-### 4.5 Advisory Template
+### 3.5 Advisory Template
 
 ```text
 Title: [Project] [Vulnerability class] in [Component]
@@ -219,9 +195,6 @@ Credits:
 Timeline:
 ```
 
-### 4.6 Recommended Branch Protection
+### 3.6 Branch Protection
 
-- PRs required, no direct push
-- Security, CI, and release changes require approval from at least two people
-- Required checks: `CI / build`, `CI / codeql`, `Dependency Review`
-- Require conversation resolution before merge
+See [SECURITY.md](../SECURITY.md#protected-branches-and-required-checks) for branch protection rules and required CI checks.

@@ -25,6 +25,7 @@ These options are common to pipeline-oriented commands such as `run`, `analyze`,
 | Option | Description | Default |
 |---|---|---|
 | `-c, --config <path>` | Config file path | `config.json`, then `.ful/config.json` |
+| `-l, --lang <tag>` | Language tag for CLI messages (e.g., `en`, `ja`) | system locale |
 | `-p, --project-root <path>` | Project root; can also be passed positionally | `.` |
 | `-h, --help` | Show help | - |
 | `-V, --version` | Show version | - |
@@ -36,13 +37,15 @@ These options are common to pipeline-oriented commands such as `run`, `analyze`,
 | `--version-history` | Use Git history in selection logic | `false` |
 | `--unresolved-policy <skip|minimal>` | Policy for unresolved references | - |
 | `--max-cyclomatic <int>` | Complexity threshold for strategy handling | - |
-| `--complexity-strategy <warn|skip|split>` | Strategy for highly complex methods | - |
-| `--process-isolation` | Run in process-isolated mode | `false` |
-| `--tasks-format <json|jsonl>` | Task-file output format | - |
+| `--complexity-strategy <warn|skip|split|specialized_prompt>` | Strategy for highly complex methods | - |
+| `--tasks-format <json|yaml|jsonl>` | Task-file output format | - |
 | `--cache-ttl <int>` | Cache TTL in days | - |
 | `--cache-revalidate` | Revalidate cache before use | `false` |
 | `--cache-encrypt` | Encrypt cache data | `false` |
 | `--cache-key-env <name>` | Environment variable for cache encryption key | - |
+| `--cache-max-size-mb <int>` | Max cache size in MB | - |
+| `--cache-version-check` | Enable cache version checking | `false` |
+| `--plugin-classpath <paths>` | Additional plugin classpath entries | - |
 
 ## `run`
 
@@ -50,12 +53,12 @@ These options are common to pipeline-oriented commands such as `run`, `analyze`,
 
 | Option | Description |
 |---|---|
-| `--steps <steps>` | Explicit comma-separated step list |
-| `--from <step>` | Start from a specific step |
-| `--to <step>` | Stop after a specific step |
+| `--steps, --nodes <steps>` | Explicit comma-separated step list |
+| `--from, --from-node <step>` | Start from a specific step |
+| `--to, --to-node <step>` | Stop after a specific step |
 | `--fail-fast` | Stop immediately on failure |
 | `--summary` / `--no-summary` | Toggle end-of-run summary output |
-| `--format <markdown|html|pdf|all>` | Document output format for DOCUMENT and EXPLORE |
+| `--format, --document-format <markdown|html|pdf|all>` | Document output format for DOCUMENT and EXPLORE |
 | `--llm` | Enables `docs.use_llm` and propagates LLM usage into run stages |
 
 Notes:
@@ -88,7 +91,7 @@ Notes:
 | `-d, --dirs <paths>` | Comma-separated target directories |
 | `--exclude-tests[=<bool>]` | Exclude test code from analysis |
 | `--debug-dynamic-resolution` | Enable debug output for dynamic resolution |
-| `--format <markdown|html|pdf|all>` | Document format; `html` and `all` also affect report format |
+| `--format, --document-format <markdown|html|pdf|all>` | Document format; `html` and `all` also affect report format |
 | `--llm` | Enables LLM usage for document generation inside `explore` |
 
 Notes:
@@ -207,6 +210,5 @@ Notes:
 
 ## Related Documents
 
-- [Logging](logging.md)
 - [Configuration Reference](config.md)
-- [Plugin Architecture](plugin-architecture.md)
+- [LLM Configuration](llm-configuration.md)

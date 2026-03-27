@@ -1,5 +1,5 @@
 [versions]
-ful = "1.0.0"
+ful = "0.1.0"
 guava = "32.1.3-jre"
 junit-jupiter = "5.13.4"
 javaparser = "3.25.7"
