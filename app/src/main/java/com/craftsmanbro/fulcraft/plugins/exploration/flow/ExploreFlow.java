@@ -2885,8 +2885,7 @@ public class ExploreFlow {
             "__REPORT_SUBTITLE__",
             escapeHtml(MessageSource.getMessage("explore.html.report.subtitle")))
         .replace(
-            "__ERROR_NO_DATA__",
-            escapeHtml(MessageSource.getMessage("explore.html.error.no_data")))
+            "__ERROR_NO_DATA__", escapeHtml(MessageSource.getMessage("explore.html.error.no_data")))
         .replace(
             "__ERROR_THREEJS_LOAD_FAILED__",
             escapeHtml(MessageSource.getMessage("explore.html.error.threejs_load_failed")))

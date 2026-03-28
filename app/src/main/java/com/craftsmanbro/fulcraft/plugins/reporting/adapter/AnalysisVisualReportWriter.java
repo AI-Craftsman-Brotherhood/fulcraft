@@ -609,7 +609,8 @@ public class AnalysisVisualReportWriter {
       return null;
     }
     String candidate = ref.getResolved();
-    final boolean isResolved = candidate != null && !candidate.isBlank() && !"None".equals(candidate);
+    final boolean isResolved =
+        candidate != null && !candidate.isBlank() && !"None".equals(candidate);
     if (!isResolved) {
       candidate = ref.getRaw();
     }
