@@ -609,7 +609,8 @@ public class AnalysisVisualReportWriter {
       return null;
     }
     String candidate = ref.getResolved();
-    if (candidate == null || candidate.isBlank()) {
+    final boolean isResolved = candidate != null && !candidate.isBlank() && !"None".equals(candidate);
+    if (!isResolved) {
       candidate = ref.getRaw();
     }
     if (candidate == null || candidate.isBlank()) {
@@ -640,6 +641,12 @@ public class AnalysisVisualReportWriter {
     }
     if (!normalized.contains(".") && simpleNameMap.containsKey(normalized)) {
       return simpleNameMap.get(normalized);
+    }
+    // Unresolved refs starting with a lowercase letter are likely local variable
+    // method chains (e.g. "item.product" from item.product().code()), not real
+    // class references. Skip them to avoid false external dependencies.
+    if (!isResolved && !cleaned.isEmpty() && Character.isLowerCase(cleaned.charAt(0))) {
+      return null;
     }
     return cleaned;
   }
@@ -773,12 +780,34 @@ public class AnalysisVisualReportWriter {
           edgeAggregationMaps.fileEdges());
       return;
     }
+    // Classes whose package matches an internal package but were not parsed
+    // (e.g. due to syntax errors) should not appear as external dependencies.
+    if (belongsToInternalPackage(targetClass, lookupContext.internalClasses())) {
+      return;
+    }
     addExternalEdges(
         source,
         targetClass,
         edgeAggregationMaps.externalEdges(),
         edgeAggregationMaps.fileExternalEdges(),
         edgeAggregationMaps.externalLibraries());
+  }
+
+  private boolean belongsToInternalPackage(
+      final String targetClass, final Set<String> internalClasses) {
+    final String targetPackage = DocumentUtils.getPackageName(targetClass);
+    if (targetPackage == null || targetPackage.isEmpty()) {
+      return false;
+    }
+    for (final String internalClass : internalClasses) {
+      final String internalPackage = DocumentUtils.getPackageName(internalClass);
+      if (targetPackage.equals(internalPackage)
+          || targetPackage.startsWith(internalPackage + ".")
+          || internalPackage.startsWith(targetPackage + ".")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void addInternalEdges(
