@@ -317,6 +317,7 @@ public class RunCommand extends AbstractCliCommand {
     }
     if (docsConfig.isMarkdownFormat()) {
       docsConfig.setFormat("html");
+      applyExploreReportFormatOverride(config, selectedNodes, "html");
     }
   }
 

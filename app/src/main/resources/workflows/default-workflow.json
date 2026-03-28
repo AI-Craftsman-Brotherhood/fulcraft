@@ -18,7 +18,7 @@
     {
       "id": "explore",
       "plugin": "explore-builtin",
-      "depends_on": ["document"]
+      "depends_on": ["document", "report"]
     }
   ]
 }

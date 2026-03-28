@@ -2012,8 +2012,12 @@
       if (storedTheme && uiConfig.themes[storedTheme]) {
         uiConfig.currentTheme = storedTheme;
       }
-      if (storedLocale && uiConfig.locales[storedLocale]) {
+      const generatedLocale = document.documentElement.lang || uiConfig.currentLocale;
+      if (storedLocale && uiConfig.locales[storedLocale] && storedLocale === generatedLocale) {
         uiConfig.currentLocale = storedLocale;
+      } else if (generatedLocale && uiConfig.locales[generatedLocale]) {
+        uiConfig.currentLocale = generatedLocale;
+        writeSetting(settingsStorage.localeKey, generatedLocale);
       }
       const mapSvg = document.getElementById("map");
       const tooltip = document.getElementById("tooltip");
@@ -4297,33 +4301,54 @@
       }
 
       function buildProjectClassMapContext() {
-        const sorted = classes
-          .slice()
-          .sort((a, b) => {
-            const leverageDiff =
-              (classScores.get(b.id)?.leverageScore || 0) -
-              (classScores.get(a.id)?.leverageScore || 0);
-            if (leverageDiff !== 0) {
-              return leverageDiff;
-            }
-            return (a.id || "").localeCompare(b.id || "");
-          });
-        const displayClasses = sorted.filter((cls) =>
-          matchesScoreFilter(cls, state.scoreFilter)
-        );
-        if (!displayClasses.length) {
-          return { displayClasses: [], displayEdges: [], centerClass: null, totalCount: sorted.length };
+        const rootPackageId = resolveProjectRootPackageId();
+        const childPackages = rootPackageId !== null
+          ? getDirectChildPackages(rootPackageId)
+          : [];
+        const allItems = childPackages.slice();
+        if (!allItems.length) {
+          return { displayPackages: [], displayEdges: [], scopedExternalEdges: [], totalCount: 0 };
         }
-        const displayIds = new Set(displayClasses.map((classInfo) => classInfo.id));
-        const displayEdges = classEdges.filter(
+        const displayItems = allItems.filter(
+          (pkg) => matchesScoreFilter(pkg, state.scoreFilter, packageScores)
+        );
+        if (!displayItems.length) {
+          return { displayPackages: [], displayEdges: [], scopedExternalEdges: [], totalCount: allItems.length };
+        }
+        const displayIds = new Set(displayItems.map((pkg) => pkg.id));
+        const displayEdges = packageEdges.filter(
           (edge) => edge && displayIds.has(edge.from) && displayIds.has(edge.to)
         );
+        const scopedExternalEdges = externalEdges.filter(
+          (edge) => edge && displayIds.has(edge.from)
+        );
         return {
-          displayClasses,
+          displayPackages: displayItems,
           displayEdges,
-          centerClass: displayClasses[0],
-          totalCount: sorted.length,
+          scopedExternalEdges,
+          totalCount: allItems.length,
         };
+      }
+
+      // Returns the root package ID for the project scope view.
+      // - Single root (all packages share a common prefix): returns that root ID
+      //   e.g. "com.example.order" when all packages are under com.example.order.*
+      // - Multiple roots (no common prefix): returns "" so that
+      //   getDirectChildPackages("") returns top-level packages without dots
+      // - No packages at all: returns null (caller renders empty state)
+      function resolveProjectRootPackageId() {
+        if (!packages.length) {
+          return null;
+        }
+        const sorted = packages.slice().sort((a, b) => (a.id || "").localeCompare(b.id || ""));
+        const root = sorted[0];
+        if (!root) {
+          return null;
+        }
+        const allUnderRoot = packages.every(
+          (pkg) => pkg.id === root.id || (pkg.id || "").startsWith(`${root.id}.`)
+        );
+        return allUnderRoot ? root.id : "";
       }
 
       function layoutRing(nodes, radius, center, jitterSeed) {
@@ -5111,112 +5136,86 @@
 
       function renderProjectClassMap(center, ringBase, viewBox) {
         const context = buildProjectClassMapContext();
-        updateScoreFilterBar(context);
-        if (!context || !context.displayClasses.length) {
+        updateScoreFilterBar(
+          context && context.displayPackages.length
+            ? { displayClasses: context.displayPackages, totalCount: context.totalCount }
+            : null
+        );
+        if (!context || !context.displayPackages.length) {
           setEdgeLegendMode(null);
           renderEmptyState(viewBox);
           return;
         }
 
         setEdgeLegendMode("project");
-        const positions = new Map();
-        const graphCenter = {
-          x: center.x + Math.min(24, viewBox.width * 0.03),
-          y: center.y - Math.min(20, viewBox.height * 0.03),
-        };
-        const displayClasses = context.displayClasses;
-        const nodeCount = displayClasses.length;
-        const centerClass = context.centerClass;
-        positions.set(centerClass.id, graphCenter);
-
-        const remainingClasses = displayClasses.slice(1);
-        const tiers = [];
-        const tierCapacities = buildDynamicTierCapacities(nodeCount);
-        let tierIndex = 0;
-        while (remainingClasses.length > 0) {
-          const capacity =
-            tierCapacities[tierIndex] ||
-            tierCapacities[tierCapacities.length - 1] +
-              (tierIndex - tierCapacities.length + 1) * 4;
-          tiers.push(remainingClasses.splice(0, capacity));
-          tierIndex += 1;
-        }
-
-        if (tiers.length > 0) {
-          const density = resolveDensityScale(nodeCount);
-          const tierGap = Math.max(60, 92 * density);
-          const maxRadius = Math.max(180, Math.min(viewBox.width, viewBox.height) * 0.4);
-          const minRadius = Math.min(maxRadius, Math.max(140 * density + 30, ringBase * 0.24));
-          const radiusStep =
-            tiers.length > 1
-              ? Math.max(tierGap, (maxRadius - minRadius) / (tiers.length - 1))
-              : 0;
-          tiers.forEach((tierNodes, index) => {
-            const radius =
-              tiers.length === 1
-                ? minRadius
-                : Math.min(maxRadius, minRadius + radiusStep * index);
-            layoutRing(tierNodes, radius, graphCenter, 0.28 + index * 0.37).forEach(
-              (value, key) => {
-                positions.set(key, value);
-              }
-            );
-          });
-        }
-
-        const defs = createSvgElement("defs", {});
-        const projectMarker = createSvgElement("marker", {
-          id: "class-project-arrow",
-          markerWidth: "8",
-          markerHeight: "8",
-          refX: "6.4",
-          refY: "4",
-          orient: "auto",
-          markerUnits: "strokeWidth",
-        });
-        projectMarker.appendChild(
-          createSvgElement("path", { d: "M 0 0 L 8 4 L 0 8 z", fill: "#1f6f5c" })
+        const displayPackages = context.displayPackages.slice().sort(
+          (a, b) =>
+            (packageScores.get(b.id)?.leverageScore || 0) -
+            (packageScores.get(a.id)?.leverageScore || 0)
         );
-        defs.appendChild(projectMarker);
-        mapSvg.appendChild(defs);
+        const packageSizeScales = buildPackageSizeScaleMap(displayPackages);
+
+        const positions = new Map();
+        if (displayPackages.length === 1) {
+          positions.set(displayPackages[0].id, { x: center.x, y: center.y });
+        } else {
+          layoutRing(displayPackages, ringBase * 0.22, center, 0.35).forEach(
+            (value, key) => {
+              positions.set(key, value);
+            }
+          );
+        }
 
         const edgesGroup = createSvgElement("g", {});
         context.displayEdges.forEach((edge) => {
-          const trimmed = resolveTrimmedClassEdge(edge, positions, 6, 12, nodeCount);
-          if (!trimmed) {
+          const from = positions.get(edge.from);
+          const to = positions.get(edge.to);
+          if (!from || !to) {
             return;
           }
           const path = createSvgElement("path", {
-            d: `M ${trimmed.start.x} ${trimmed.start.y} L ${trimmed.end.x} ${trimmed.end.y}`,
-            class: "edge edge-focus",
-            "marker-end": "url(#class-project-arrow)",
+            d: `M ${from.x} ${from.y} L ${to.x} ${to.y}`,
+            class: `edge ${edgeRelationClass(edge)}`,
           });
-          path.style.stroke = "#1f6f5c";
-          path.style.strokeWidth = String(Math.min(4.8, 1 + edge.weight * 0.18));
           edgesGroup.appendChild(path);
         });
 
         const nodesGroup = createSvgElement("g", {});
-        displayClasses.forEach((classInfo, index) => {
-          const position = positions.get(classInfo.id);
+        displayPackages.forEach((pkg, index) => {
+          const position = positions.get(pkg.id);
           if (!position) {
             return;
           }
           nodesGroup.appendChild(
-            renderClassNodeInMap(classInfo, position, index, null, "scope", (event) => {
-              event.stopPropagation();
-              state.selectedClassId = classInfo.id;
-              state.selectedFileId = classInfo.filePath || null;
-              state.selectedPackageId = classInfo.packageName || null;
-              resetZoom();
-              renderAll();
-            }, nodeCount)
+            renderPackageNodeInMap(
+              pkg,
+              position,
+              index,
+              null,
+              packageSizeScales.get(pkg.id)
+            )
           );
         });
 
+        const displayIds = new Set(positions.keys());
+        const externalLayer = renderExternalLayer(
+          context.scopedExternalEdges,
+          displayIds,
+          positions,
+          center,
+          ringBase * 0.5,
+          0.95
+        );
+
         mapLayer = createSvgElement("g", {});
         mapLayer.appendChild(edgesGroup);
+        if (externalLayer) {
+          mapLayer.appendChild(externalLayer.edgeGroup);
+        }
         mapLayer.appendChild(nodesGroup);
+        if (externalLayer) {
+          mapLayer.appendChild(externalLayer.nodesGroup);
+        }
         mapSvg.appendChild(mapLayer);
         fitContent(40);
       }
@@ -5851,7 +5850,7 @@
               state.selectedClassId
             )
           ) {
-            updateDashboard(classes, classScores);
+            updateDashboard(packages, packageScores);
             renderMap();
             updateDetailPanel(buildSelection());
             updateTreeSelection();

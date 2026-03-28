@@ -129,9 +129,9 @@ class PipelineFactoryTest {
     final Pipeline pipeline = factory.create();
 
     assertThat(new ArrayList<>(pipeline.getStageNodes().keySet()))
-        .containsExactly("analyze", "document", "explore", "report");
+        .containsExactly("analyze", "document", "report", "explore");
     assertThat(new ArrayList<>(pipeline.getStages().keySet()))
-        .containsExactly("analyze", "document", "explore", "report");
+        .containsExactly("analyze", "document", "report", "explore");
   }
 
   @Test

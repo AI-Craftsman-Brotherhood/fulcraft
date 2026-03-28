@@ -901,11 +901,11 @@ public class ExploreFlow {
     final String template =
         """
             <!doctype html>
-            <html lang="ja">
+            <html lang="__LOCALE__">
             <head>
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, initial-scale=1">
-              <title>EXPLORE 3D Metro</title>
+              <title>__TITLE__</title>
               <style>
                 :root {
                   color-scheme: dark;
@@ -1463,7 +1463,7 @@ public class ExploreFlow {
                   <div class="kicker">Explore / Function Metro</div>
                   <h1>Dependency Gear Tree</h1>
                   <div class="subtitle">
-                    解析結果からクラスを歯車として配置し、依存の深さは立体レイヤで表現します。
+                    __SUBTITLE__
                   </div>
 
                   <section class="group">
@@ -1495,11 +1495,11 @@ public class ExploreFlow {
                   <section class="group">
                     <h2 class="group-title">How To Read</h2>
                     <ul>
-                      <li>歯車 1つが 1クラス。複合歯車は複雑度が高いクラス。</li>
-                      <li>Service / Utility / Data などは role リングと色で表現。</li>
-                      <li>各クラスは所属パッケージの円内に配置されます。</li>
-                      <li>線はクラス間依存。選択ノード関連のみ強調表示。</li>
-                      <li>ドラッグで回転、ホイールでズーム、クリックで詳細表示。</li>
+                      <li>__LEGEND_GEAR__</li>
+                      <li>__LEGEND_ROLE__</li>
+                      <li>__LEGEND_PACKAGE__</li>
+                      <li>__LEGEND_EDGE__</li>
+                      <li>__LEGEND_INTERACTION__</li>
                     </ul>
                   </section>
 
@@ -1514,7 +1514,7 @@ public class ExploreFlow {
                       </div>
                     </div>
                     <div class="hint">
-                      Package Layout: 階層配置（トップパッケージを外周リング、サブパッケージを親周りに配置）
+                      __HINT_PACKAGE_LAYOUT__
                     </div>
                   </section>
 
@@ -1579,7 +1579,7 @@ public class ExploreFlow {
                         <div class="report-kicker">Explore / Reporting</div>
                         <h1 class="report-title">Run Reports</h1>
                         <p class="report-subtitle">
-                          REPORTステップとANALYZEステップの成果物を参照できます。詳細確認はRawリンクまたは一覧から選択してください。
+                          __REPORT_SUBTITLE__
                         </p>
                       </div>
                       <a class="report-raw-link" id="report-raw-link" href="#" target="_blank" rel="noopener noreferrer">
@@ -1608,7 +1608,7 @@ public class ExploreFlow {
                 }
 
                 if (nodes.length === 0) {
-                  showBootError("3D表示データがありません。ANALYZE結果の classes を確認してください。");
+                  showBootError("__ERROR_NO_DATA__");
                   throw new Error();
                 }
 
@@ -1621,7 +1621,7 @@ public class ExploreFlow {
                   ));
                 } catch (error) {
                   showBootError(
-                    "Three.js の読み込みに失敗しました。インターネット接続を確認してください。 " +
+                    "__ERROR_THREEJS_LOAD_FAILED__ " +
                       String(error && error.message ? error.message : error)
                   );
                   throw error;
@@ -1707,7 +1707,7 @@ public class ExploreFlow {
                   reportStatus.innerHTML = "";
                   if (!reportLinks.length) {
                     reportStatus.textContent =
-                      "利用可能なレポート成果物が見つかりません。REPORT または DOCUMENT を実行すると、ここから参照できます。";
+                      "__REPORT_NO_ARTIFACTS__";
                     reportFrame.hidden = true;
                     reportRawLink.href = "#";
                     reportRawLink.setAttribute("aria-disabled", "true");
@@ -2863,6 +2863,35 @@ public class ExploreFlow {
             </html>
             """;
     return template
+        .replace("__LOCALE__", escapeHtml(resolveLocaleTag()))
+        .replace("__TITLE__", escapeHtml(MessageSource.getMessage("explore.html.title")))
+        .replace("__SUBTITLE__", escapeHtml(MessageSource.getMessage("explore.html.subtitle")))
+        .replace(
+            "__LEGEND_GEAR__", escapeHtml(MessageSource.getMessage("explore.html.legend.gear")))
+        .replace(
+            "__LEGEND_ROLE__", escapeHtml(MessageSource.getMessage("explore.html.legend.role")))
+        .replace(
+            "__LEGEND_PACKAGE__",
+            escapeHtml(MessageSource.getMessage("explore.html.legend.package")))
+        .replace(
+            "__LEGEND_EDGE__", escapeHtml(MessageSource.getMessage("explore.html.legend.edge")))
+        .replace(
+            "__LEGEND_INTERACTION__",
+            escapeHtml(MessageSource.getMessage("explore.html.legend.interaction")))
+        .replace(
+            "__HINT_PACKAGE_LAYOUT__",
+            escapeHtml(MessageSource.getMessage("explore.html.hint.package_layout")))
+        .replace(
+            "__REPORT_SUBTITLE__",
+            escapeHtml(MessageSource.getMessage("explore.html.report.subtitle")))
+        .replace(
+            "__ERROR_NO_DATA__", escapeHtml(MessageSource.getMessage("explore.html.error.no_data")))
+        .replace(
+            "__ERROR_THREEJS_LOAD_FAILED__",
+            escapeHtml(MessageSource.getMessage("explore.html.error.threejs_load_failed")))
+        .replace(
+            "__REPORT_NO_ARTIFACTS__",
+            escapeHtml(MessageSource.getMessage("explore.html.report.no_artifacts")))
         .replace("__RUN_ID__", escapeHtml(snapshot.runId()))
         .replace("__GENERATED_AT__", escapeHtml(snapshot.generatedAt()))
         .replace("__TOP_COMPLEXITY__", escapeHtml(snapshot.topComplexity()))
@@ -2879,6 +2908,14 @@ public class ExploreFlow {
       throw new IllegalStateException(
           MessageSource.getMessage("explore.flow.error.embedded_json_render_failed"), e);
     }
+  }
+
+  private String resolveLocaleTag() {
+    final Locale locale = MessageSource.getLocale();
+    if (locale == null || locale.getLanguage() == null || locale.getLanguage().isBlank()) {
+      return "en";
+    }
+    return locale.getLanguage();
   }
 
   private String escapeHtml(final String value) {
