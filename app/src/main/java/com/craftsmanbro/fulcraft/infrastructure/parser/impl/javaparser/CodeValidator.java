@@ -1,7 +1,6 @@
 package com.craftsmanbro.fulcraft.infrastructure.parser.impl.javaparser;
 
 import com.craftsmanbro.fulcraft.infrastructure.logging.impl.Logger;
-import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -310,7 +309,7 @@ public class CodeValidator {
   }
 
   private ParseResult<CompilationUnit> parse(final String code) {
-    return new JavaParser().parse(code);
+    return JavaParserFactory.newDefaultParser().parse(code);
   }
 
   /**

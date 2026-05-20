@@ -3,6 +3,7 @@ package com.craftsmanbro.fulcraft.plugins.analysis.core.service.dynamic;
 import com.craftsmanbro.fulcraft.i18n.MessageSource;
 import com.craftsmanbro.fulcraft.infrastructure.logging.impl.Logger;
 import com.craftsmanbro.fulcraft.infrastructure.parser.impl.common.AstUtils;
+import com.craftsmanbro.fulcraft.infrastructure.parser.impl.javaparser.JavaParserFactory;
 import com.craftsmanbro.fulcraft.plugins.analysis.core.service.index.ProjectSymbolIndex;
 import com.craftsmanbro.fulcraft.plugins.analysis.model.AnalysisResult;
 import com.craftsmanbro.fulcraft.plugins.analysis.model.ClassInfo;
@@ -148,8 +149,11 @@ public class DynamicResolver {
 
   private static final String LOG_PROVIDERS_PREFIX = "  Providers: ";
 
-  // Lightweight parser (no symbol solver needed for basic literal detection)
-  private final JavaParser javaParser = new JavaParser();
+  // Lightweight parser (no symbol solver needed for basic literal detection).
+  // Intentionally pins the project default (BLEEDING_EDGE) regardless of
+  // analysis.language_level so literal/expression detection always handles the most
+  // expressive Java syntax JavaParser supports.
+  private final JavaParser javaParser = JavaParserFactory.newDefaultParser();
 
   /** Resolve dynamic features from analysis result (default: inter-procedural OFF). */
   public void resolve(final AnalysisResult result, final Path projectRoot) {

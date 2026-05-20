@@ -226,7 +226,7 @@ public class JavaParserAnalyzer implements AnalysisPort {
     addDependencyJarsToTypeSolver(combinedTypeSolver, projectRoot, config);
     final com.github.javaparser.symbolsolver.JavaSymbolSolver symbolSolver =
         new com.github.javaparser.symbolsolver.JavaSymbolSolver(combinedTypeSolver);
-    final ParserConfiguration parserConfiguration = new ParserConfiguration();
+    final ParserConfiguration parserConfiguration = JavaParserFactory.newConfiguration(config);
     parserConfiguration.setSymbolResolver(symbolSolver);
     return new JavaParser(parserConfiguration);
   }

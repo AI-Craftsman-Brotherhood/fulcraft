@@ -268,7 +268,7 @@ public class SpoonAnalyzer implements AnalysisPort {
         com.craftsmanbro.fulcraft.i18n.MessageSource.getMessage(
             "infra.common.log.message", "[Spoon] Effective mode: " + effectiveMode));
     launcher.getEnvironment().setCommentEnabled(false);
-    launcher.getEnvironment().setComplianceLevel(17);
+    launcher.getEnvironment().setComplianceLevel(SpoonComplianceLevels.fromConfig(config));
     launcher.getEnvironment().setIgnoreSyntaxErrors(true);
     launcher.getEnvironment().setIgnoreDuplicateDeclarations(true);
     // Configure encoding from analysis.source_charset (default: UTF-8)

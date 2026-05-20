@@ -1,6 +1,6 @@
 package com.craftsmanbro.fulcraft.plugins.analysis.core.service.analyzer;
 
-import com.github.javaparser.JavaParser;
+import com.craftsmanbro.fulcraft.infrastructure.parser.impl.javaparser.JavaParserFactory;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.BinaryExpr;
@@ -79,7 +79,7 @@ public class CommonMethodAnalyzer {
       return emptyHints();
     }
     try {
-      final var parseResult = new JavaParser().parse(sourceCode);
+      final var parseResult = JavaParserFactory.newDefaultParser().parse(sourceCode);
       if (!parseResult.isSuccessful() || parseResult.getResult().isEmpty()) {
         return emptyHints();
       }

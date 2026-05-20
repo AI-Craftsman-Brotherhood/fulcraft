@@ -53,6 +53,18 @@ public class AnalysisConfig {
   @JsonProperty("source_charset")
   private String sourceCharset = CHARSET_UTF8;
 
+  @JsonProperty("language_level")
+  private String languageLevel;
+
+  /**
+   * Returns the configured Java language level (e.g., {@code "JAVA_17"}, {@code "21"}, {@code
+   * "BLEEDING_EDGE"}). Returns {@code null} when unset; resolution to a concrete JavaParser/Spoon
+   * value is delegated to the parser layer so that the default can evolve.
+   */
+  public String getLanguageLevel() {
+    return languageLevel;
+  }
+
   // 1-hop inter-procedural resolution for method parameter arguments
   @JsonProperty("enable_interprocedural_resolution")
   private Boolean enableInterproceduralResolution = false;
