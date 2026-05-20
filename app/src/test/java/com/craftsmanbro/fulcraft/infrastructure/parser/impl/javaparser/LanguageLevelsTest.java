@@ -40,10 +40,22 @@ class LanguageLevelsTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"JAVA_21", "21", "JAVA_19", "JAVA_20", "BLEEDING_EDGE"})
-  @DisplayName("19+ and BLEEDING_EDGE all map to the BLEEDING_EDGE alias")
-  void java19PlusMapsToBleedingEdge(final String raw) {
-    assertThat(LanguageLevels.resolve(raw)).isEqualTo(LanguageLevel.BLEEDING_EDGE);
+  @CsvSource({
+    "JAVA_19, JAVA_19",
+    "JAVA_20, JAVA_20",
+    "JAVA_21, JAVA_21",
+    "21, JAVA_21",
+    "java-21, JAVA_21"
+  })
+  @DisplayName("19/20/21 map to first-class enum constants (JavaParser 3.27+)")
+  void java19PlusMapsToConcreteLevel(final String raw, final String expectedName) {
+    assertThat(LanguageLevels.resolve(raw).name()).isEqualTo(expectedName);
+  }
+
+  @Test
+  @DisplayName("BLEEDING_EDGE alias resolves to LanguageLevel.BLEEDING_EDGE")
+  void bleedingEdgeAlias() {
+    assertThat(LanguageLevels.resolve("BLEEDING_EDGE")).isEqualTo(LanguageLevel.BLEEDING_EDGE);
   }
 
   @Test

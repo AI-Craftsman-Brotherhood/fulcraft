@@ -35,7 +35,15 @@
     "quality_gate": {"$ref": "#/definitions/QualityGateConfig"},
     "output": {"$ref": "#/definitions/OutputConfig"},
     "cli": {"$ref": "#/definitions/CliConfig"},
-    "pipeline": {"$ref": "#/definitions/PipelineConfig"}
+    "pipeline": {"$ref": "#/definitions/PipelineConfig"},
+    "brittle_test_rules": {"type": "object", "additionalProperties": true},
+    "mocking": {"type": "object", "additionalProperties": true},
+    "local_fix": {"type": "object", "additionalProperties": true},
+    "log": {"type": "object", "additionalProperties": true},
+    "docs": {"type": "object", "additionalProperties": true},
+    "cache": {"type": "object", "additionalProperties": true},
+    "interceptors": {"type": "object", "additionalProperties": true},
+    "verification": {"type": "object", "additionalProperties": true}
   },
   "definitions": {
     "ProjectConfig": {
@@ -58,6 +66,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "engine": {"type": "string"},
         "spoon": {"$ref": "#/definitions/SpoonConfig"},
         "dump_file_list": {"type": "boolean"},
         "source_root_mode": {
@@ -66,6 +75,12 @@
         },
         "source_root_paths": {"type": "array", "items": {"type": "string"}},
         "source_charset": {"type": "string"},
+        "language_level": {
+          "type": "string",
+          "description": "Source Java language level used by Spoon and JavaParser. Accepts JAVA_8..JAVA_21, BLEEDING_EDGE, POPULAR, CURRENT (case-insensitive; underscores/spaces/hyphens accepted)."
+        },
+        "exclude_tests": {"type": "boolean"},
+        "visual_report_template": {"type": "string"},
         "classpath": {"$ref": "#/definitions/ClasspathConfig"},
         "preprocess": {"$ref": "#/definitions/PreprocessConfig"},
         "external_config_resolution": {"type": "boolean"},

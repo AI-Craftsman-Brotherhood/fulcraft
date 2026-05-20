@@ -28,7 +28,10 @@ class SpoonComplianceLevelsTest {
     "JAVA_16, 16",
     "16, 16",
     "JAVA_17, 17",
-    "17, 17"
+    "17, 17",
+    "JAVA_21, 21",
+    "21, 21",
+    "Java 21, 21"
   })
   @DisplayName("numeric/canonical forms resolve to the matching int")
   void resolvesNumericAndCanonical(final String raw, final int expected) {
@@ -36,8 +39,8 @@ class SpoonComplianceLevelsTest {
   }
 
   @ParameterizedTest
-  @CsvSource({"JAVA_18, 17", "JAVA_21, 17", "21, 17", "JAVA_99, 17", "999, 17"})
-  @DisplayName("values above MAX_SUPPORTED (17) clamp to 17 for JDT compatibility")
+  @CsvSource({"JAVA_22, 21", "JAVA_25, 21", "JAVA_99, 21", "999, 21"})
+  @DisplayName("values above MAX_SUPPORTED (21) clamp to 21")
   void clampsAboveMax(final String raw, final int expected) {
     assertThat(SpoonComplianceLevels.resolve(raw)).isEqualTo(expected);
   }
@@ -45,7 +48,7 @@ class SpoonComplianceLevelsTest {
   @Test
   @DisplayName("aliases map to their concrete versions")
   void aliases() {
-    assertThat(SpoonComplianceLevels.resolve("BLEEDING_EDGE")).isEqualTo(17);
+    assertThat(SpoonComplianceLevels.resolve("BLEEDING_EDGE")).isEqualTo(21);
     assertThat(SpoonComplianceLevels.resolve("POPULAR")).isEqualTo(11);
     assertThat(SpoonComplianceLevels.resolve("CURRENT")).isEqualTo(16);
   }

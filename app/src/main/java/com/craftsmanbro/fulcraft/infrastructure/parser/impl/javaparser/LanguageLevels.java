@@ -9,22 +9,22 @@ import java.util.Map;
 /**
  * Normalizes user-facing Java language level strings into JavaParser's {@link LanguageLevel} enum.
  *
- * <p>Accepts loose variants such as {@code "JAVA_17"}, {@code "17"}, {@code "java17"}, {@code "Java
- * 17"}, and {@code "java-17"}. Unknown or null inputs fall back to the project default ({@link
- * #DEFAULT}) and emit a single WARN log.
+ * <p>Accepts loose variants such as {@code "JAVA_21"}, {@code "21"}, {@code "java21"}, {@code "Java
+ * 21"}, and {@code "java-21"}. Unknown or null inputs fall back to the project default ({@link
+ * #DEFAULT}) and emit a WARN log de-duplicated per raw input value via {@code Logger.warnOnce}.
  *
- * <p>JavaParser 3.25.7 only ships levels up to {@code JAVA_18}. Versions {@code 19}–{@code 21} are
- * mapped to {@link LanguageLevel#BLEEDING_EDGE} as a best-effort approximation so that Java 17+
- * features (records, sealed, pattern matching) continue to parse correctly.
+ * <p>JavaParser 3.27.0 ships first-class enum constants for {@code JAVA_19}–{@code JAVA_21}. The
+ * project default is pinned to {@link LanguageLevel#JAVA_21} (LTS) rather than {@link
+ * LanguageLevel#BLEEDING_EDGE} so behavior does not silently drift when the library bumps its
+ * preview target.
  */
 public final class LanguageLevels {
 
   /**
-   * Default language level when not configured. {@link LanguageLevel#BLEEDING_EDGE} (= {@code
-   * JAVA_17_PREVIEW}) is the maximum that JavaParser 3.25.7 can recognize and matches the behavior
-   * of {@code TestCodeFormatter}/{@code JavaParserBrittleTestChecker}.
+   * Default language level when not configured. Pinned to {@link LanguageLevel#JAVA_21} (LTS) so
+   * behavior stays stable across JavaParser upgrades that move {@code BLEEDING_EDGE} forward.
    */
-  public static final LanguageLevel DEFAULT = LanguageLevel.BLEEDING_EDGE;
+  public static final LanguageLevel DEFAULT = LanguageLevel.JAVA_21;
 
   private static final Map<String, LanguageLevel> CANONICAL =
       Map.ofEntries(
@@ -39,10 +39,9 @@ public final class LanguageLevels {
           Map.entry("JAVA16", LanguageLevel.JAVA_16),
           Map.entry("JAVA17", LanguageLevel.JAVA_17),
           Map.entry("JAVA18", LanguageLevel.JAVA_18),
-          // 19+ does not exist in JavaParser 3.25.7; approximate with BLEEDING_EDGE.
-          Map.entry("JAVA19", LanguageLevel.BLEEDING_EDGE),
-          Map.entry("JAVA20", LanguageLevel.BLEEDING_EDGE),
-          Map.entry("JAVA21", LanguageLevel.BLEEDING_EDGE),
+          Map.entry("JAVA19", LanguageLevel.JAVA_19),
+          Map.entry("JAVA20", LanguageLevel.JAVA_20),
+          Map.entry("JAVA21", LanguageLevel.JAVA_21),
           Map.entry("BLEEDINGEDGE", LanguageLevel.BLEEDING_EDGE),
           Map.entry("POPULAR", LanguageLevel.POPULAR),
           Map.entry("CURRENT", LanguageLevel.CURRENT));
@@ -70,7 +69,8 @@ public final class LanguageLevels {
     if (numeric != null) {
       return numeric;
     }
-    Logger.warn(
+    Logger.warnOnce(
+        "analysis.language_level.unknown:" + raw,
         com.craftsmanbro.fulcraft.i18n.MessageSource.getMessage(
             "analysis.language_level.warn.unknown", raw, DEFAULT.name()));
     return DEFAULT;

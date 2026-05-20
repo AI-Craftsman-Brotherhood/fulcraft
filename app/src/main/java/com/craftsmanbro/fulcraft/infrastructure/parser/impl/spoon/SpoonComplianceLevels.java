@@ -9,21 +9,20 @@ import java.util.regex.Pattern;
 
 /**
  * Maps the user-facing {@code analysis.language_level} to Spoon's {@code complianceLevel} integer.
- * Spoon 10.4.x bundles JDT 3.33 which supports compliance levels 8-17; higher values are clamped to
- * {@value #MAX_SUPPORTED} to avoid JDT's {@code Unrecognized option : -NN} error.
+ * Spoon 11.x bundles a newer JDT that supports compliance levels 8-21; higher values are clamped to
+ * {@value #MAX_SUPPORTED}.
  */
 public final class SpoonComplianceLevels {
 
   /**
-   * Default Spoon compliance level when not configured. Spoon 10.4.x bundles JDT, which only
-   * supports compliance levels up to {@value #MAX_SUPPORTED}; higher values trigger {@code
-   * Unrecognized option : -NN} from JDT.
+   * Default Spoon compliance level when not configured. Pinned to {@value #DEFAULT} (LTS) so the
+   * default matches the upper bound and stays stable across Spoon upgrades.
    */
-  public static final int DEFAULT = 17;
+  public static final int DEFAULT = 21;
 
   private static final int MIN_SUPPORTED = 8;
 
-  private static final int MAX_SUPPORTED = 17;
+  private static final int MAX_SUPPORTED = 21;
 
   private static final Pattern JAVA_NUMERIC = Pattern.compile("^JAVA_?(\\d{1,2})(?:_PREVIEW)?$");
 
@@ -65,7 +64,8 @@ public final class SpoonComplianceLevels {
     }
     // Unknown form -> safest default. We avoid going through LanguageLevels so that
     // Spoon's compliance level isn't capped by JavaParser's library limit.
-    Logger.warn(
+    Logger.warnOnce(
+        "analysis.language_level.unknown.spoon:" + raw,
         com.craftsmanbro.fulcraft.i18n.MessageSource.getMessage(
             "analysis.language_level.warn.unknown", raw, String.valueOf(DEFAULT)));
     return DEFAULT;
