@@ -30,9 +30,10 @@ public class ProjectSymbolIndexBuilder {
 
   private static final Map<String, ProjectSymbolIndex> CACHE = new ConcurrentHashMap<>();
 
-  // Lightweight project-wide symbol index builder. Pins the project default
-  // (BLEEDING_EDGE) so all project sources (including Java 14+ records / sealed) are
-  // indexed regardless of analysis.language_level.
+  // Lightweight project-wide symbol index builder. Pins LanguageLevels.DEFAULT
+  // (JAVA_21 LTS) so all project sources (including Java 14+ records / sealed) are
+  // indexed regardless of analysis.language_level — the index must cover every
+  // construct the analyzer might later encounter.
   private final JavaParser parser = JavaParserFactory.newDefaultParser();
 
   public ProjectSymbolIndex build(final List<Path> sourceRoots) {

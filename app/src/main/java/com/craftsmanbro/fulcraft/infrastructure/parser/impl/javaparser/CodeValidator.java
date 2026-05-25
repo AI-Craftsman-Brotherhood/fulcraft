@@ -309,6 +309,9 @@ public class CodeValidator {
   }
 
   private ParseResult<CompilationUnit> parse(final String code) {
+    // LLM-generated test code may use any Java syntax up to JAVA_21; pin the project
+    // default rather than the user's analysis.language_level so validation never rejects
+    // syntactically valid output for a reason orthogonal to the test target.
     return JavaParserFactory.newDefaultParser().parse(code);
   }
 

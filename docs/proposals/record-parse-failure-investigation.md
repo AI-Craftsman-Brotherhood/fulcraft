@@ -5,8 +5,7 @@
 | 作成日           | 2026-05-20                                                 |
 | 対象ブランチ     | `feat/improve-analysis-visual-report` (commit `b3d080e`)   |
 | 解析エンジン     | fulcraft `app/` モジュール                                 |
-| 依頼者           | k-wada                                                     |
-| ステータス       | 調査完了 / 修正未実施（社内提案レポート）                  |
+| ステータス       | 調査完了 / 修正未実施（提案レポート）                      |
 | 影響範囲         | Java 14+ 機能を使用したコードベース全般                    |
 | 想定深刻度       | **High**（解析カバレッジが大幅低下し、解析 JSON が欠落）   |
 
@@ -36,20 +35,19 @@
 
 ### 1.1 ユーザー報告
 
-- 解析対象: `/home/wada/dist/workspaces/fulcraft-connect` (Java 21 プロジェクト)
+- 解析対象: 外部 Java 21 プロジェクト（Record / sealed / pattern matching を使用）
 - コマンド:
   ```bash
-  /home/wada/dist/workspaces/fulcraft/scripts/ful analyze \
-    -d src/main/java/com/simplatform/definition --exclude-tests
+  $FUL_HOME/scripts/ful analyze \
+    -d src/main/java/com/example/sample --exclude-tests
   ```
 - 症状:
   - Quality Score 68 / 100
   - Type Resolution Rate 73.0%（Unresolved 948 / 3519）
-  - `.ful/runs/.../analysis/com/simplatform/definition/analysis_DefinitionRepository.json` の
+  - `.ful/runs/.../analysis/com/example/sample/analysis_SampleRepository.json` の
     `analysis_errors` に **`Record Declarations are not supported. ... 'JAVA_14' language level`**
     が多数記録
-  - `DefinitionRepositoryImpl.java`、`VersionManagerImpl.java`、各種 Record 値オブジェクトの
-    `analysis_*.json` が生成されず（解析結果から欠落）
+  - Record 値オブジェクトを含む各 `analysis_*.json` が生成されず（解析結果から欠落）
 
 ### 1.2 エラー文言と JavaParser のソース
 
@@ -68,7 +66,7 @@ JavaParser 3.25.x はパース時に `LanguageLevel` を強制し、未満の構
 
 ### 1.3 ユーザー設定の確認
 
-`/home/wada/dist/workspaces/fulcraft/config.json` に `analysis.engine` が **未指定**。
+対象プロジェクトの `config.json` に `analysis.engine` が **未指定**。
 このため、CLI ワイヤリング (`DefaultServiceFactory#createDefaultAnalysisPort`) は
 `CompositeAnalysisPort`（JavaParser + Spoon 両方実行）を選択する。
 Composite 配下の JavaParser パスが Record で失敗し、`analysis_errors` を積む。
@@ -468,7 +466,7 @@ JavaParser 3.25.x の `LanguageLevel` enum は
 
 ## 8. 次のアクション（提案順）
 
-1. **本レポートを社内レビューに回す**（k-wada → メンテナ）。
+1. **本レポートをメンテナレビューに回す**。
 2. 承認後、**4.1 の 1 行修正をホットフィックスとして mainline に投入**。
 3. ホットフィックス merge と同時に **4.4 の利用者向け回避策（`analysis.engine: spoon`）を
    release-notes / FAQ に追記**（既にユーザーが踏んでいるため）。

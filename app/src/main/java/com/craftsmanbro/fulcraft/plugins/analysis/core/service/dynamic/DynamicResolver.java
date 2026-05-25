@@ -150,9 +150,9 @@ public class DynamicResolver {
   private static final String LOG_PROVIDERS_PREFIX = "  Providers: ";
 
   // Lightweight parser (no symbol solver needed for basic literal detection).
-  // Intentionally pins the project default (BLEEDING_EDGE) regardless of
-  // analysis.language_level so literal/expression detection always handles the most
-  // expressive Java syntax JavaParser supports.
+  // Pins LanguageLevels.DEFAULT (JAVA_21 LTS) regardless of analysis.language_level
+  // so literal/expression detection always handles the broadest Java syntax we support,
+  // independent of the user's project-level setting.
   private final JavaParser javaParser = JavaParserFactory.newDefaultParser();
 
   /** Resolve dynamic features from analysis result (default: inter-procedural OFF). */

@@ -179,6 +179,9 @@ public class CacheRevalidator implements CacheRevalidationPort {
   private static CompilationUnit parseCompilationUnit(final String code) {
     // Cached snippets may still arrive wrapped in Markdown fences.
     final String codeWithoutFences = stripCodeFences(code);
+    // Cache contents come from prior LLM responses; pin LanguageLevels.DEFAULT
+    // (JAVA_21 LTS) so revalidation accepts any Java syntax the cache may hold,
+    // independent of the current analysis.language_level setting.
     final ParseResult<CompilationUnit> parseResult =
         JavaParserFactory.newDefaultParser().parse(codeWithoutFences);
     if (!parseResult.isSuccessful()) {

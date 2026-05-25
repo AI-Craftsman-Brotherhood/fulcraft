@@ -79,6 +79,9 @@ public class CommonMethodAnalyzer {
       return emptyHints();
     }
     try {
+      // Hint extraction must accept the full Java syntax the codebase may use; pin
+      // LanguageLevels.DEFAULT (JAVA_21 LTS) regardless of analysis.language_level so
+      // a narrower user setting does not silently drop hints for newer constructs.
       final var parseResult = JavaParserFactory.newDefaultParser().parse(sourceCode);
       if (!parseResult.isSuccessful() || parseResult.getResult().isEmpty()) {
         return emptyHints();
