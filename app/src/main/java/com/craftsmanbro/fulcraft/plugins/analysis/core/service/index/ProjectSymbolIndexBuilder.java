@@ -3,6 +3,7 @@ package com.craftsmanbro.fulcraft.plugins.analysis.core.service.index;
 import com.craftsmanbro.fulcraft.i18n.MessageSource;
 import com.craftsmanbro.fulcraft.infrastructure.logging.impl.Logger;
 import com.craftsmanbro.fulcraft.infrastructure.parser.impl.common.AstUtils;
+import com.craftsmanbro.fulcraft.infrastructure.parser.impl.javaparser.JavaParserFactory;
 import com.craftsmanbro.fulcraft.plugins.analysis.core.util.PathOrderAdapter;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
@@ -29,7 +30,11 @@ public class ProjectSymbolIndexBuilder {
 
   private static final Map<String, ProjectSymbolIndex> CACHE = new ConcurrentHashMap<>();
 
-  private final JavaParser parser = new JavaParser();
+  // Lightweight project-wide symbol index builder. Pins LanguageLevels.DEFAULT
+  // (JAVA_21 LTS) so all project sources (including Java 14+ records / sealed) are
+  // indexed regardless of analysis.language_level — the index must cover every
+  // construct the analyzer might later encounter.
+  private final JavaParser parser = JavaParserFactory.newDefaultParser();
 
   public ProjectSymbolIndex build(final List<Path> sourceRoots) {
     final String cacheKey = buildCacheKey(sourceRoots);

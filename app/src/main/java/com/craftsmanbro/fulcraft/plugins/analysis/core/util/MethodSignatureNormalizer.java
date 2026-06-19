@@ -29,18 +29,38 @@ public class MethodSignatureNormalizer {
       final String declaringClassFqn,
       final MethodInfo methodInfo,
       final Set<String> knownNestedTypes) {
+    return toMethodId(declaringClassFqn, methodInfo, knownNestedTypes, null);
+  }
+
+  /**
+   * Creates a MethodId resolving simple parameter/return type names against the declaring class's
+   * {@code imports}. This is what lets the JavaParser engine (which emits simple type names, e.g.
+   * {@code describe(Shape)}) and the Spoon engine (which emits fully-qualified names, e.g. {@code
+   * describe(com.demo.model.Shape)}) agree on the same {@link MethodId}, so the composite merge can
+   * deduplicate the method instead of emitting it twice.
+   *
+   * @param declaringClassFqn fully qualified name of the declaring class
+   * @param methodInfo the method to identify
+   * @param knownNestedTypes simple names of the declaring class's nested types (may be null)
+   * @param imports the declaring class's import list (may be null)
+   */
+  public MethodId toMethodId(
+      final String declaringClassFqn,
+      final MethodInfo methodInfo,
+      final Set<String> knownNestedTypes,
+      final List<String> imports) {
     Objects.requireNonNull(
         methodInfo, MessageSource.getMessage("analysis.common.error.argument_null", "methodInfo"));
     final String methodName = resolveMethodName(methodInfo.getName(), methodInfo.getSignature());
     final ParsedSignature parsed = parseSignature(methodInfo.getSignature());
     final List<String> parameters =
         parsed.parameterTypes().stream()
-            .map(param -> canonicalizeType(param, declaringClassFqn, knownNestedTypes))
+            .map(param -> canonicalizeType(param, declaringClassFqn, knownNestedTypes, imports))
             .toList();
     final String returnType =
         parsed
             .returnType()
-            .map(rt -> canonicalizeType(rt, declaringClassFqn, knownNestedTypes))
+            .map(rt -> canonicalizeType(rt, declaringClassFqn, knownNestedTypes, imports))
             .orElse(null);
     return new MethodId(
         canonicalizeClassName(declaringClassFqn), methodName, parameters, returnType);
@@ -113,7 +133,10 @@ public class MethodSignatureNormalizer {
   }
 
   private String canonicalizeType(
-      final String rawType, final String declaringClassFqn, final Set<String> knownNestedTypes) {
+      final String rawType,
+      final String declaringClassFqn,
+      final Set<String> knownNestedTypes,
+      final List<String> imports) {
     if (rawType == null || rawType.isBlank()) {
       return "";
     }
@@ -128,7 +151,7 @@ public class MethodSignatureNormalizer {
     String normalized = withoutGenerics.replace("$", ".").trim();
     normalized = normalized.replace("?", "").replace("@", "");
     final String baseType = normalized;
-    final String fqn = toFqn(baseType, declaringClassFqn, knownNestedTypes);
+    final String fqn = toFqn(baseType, declaringClassFqn, knownNestedTypes, imports);
     if (arrayDims > 0) {
       return fqn + "[]".repeat(arrayDims);
     }
@@ -155,7 +178,10 @@ public class MethodSignatureNormalizer {
   }
 
   private String toFqn(
-      final String typeName, final String declaringClassFqn, final Set<String> knownNestedTypes) {
+      final String typeName,
+      final String declaringClassFqn,
+      final Set<String> knownNestedTypes,
+      final List<String> imports) {
     if (typeName == null || typeName.isBlank()) {
       return "";
     }
@@ -166,19 +192,46 @@ public class MethodSignatureNormalizer {
     if (cleaned.contains(".")) {
       return canonicalizeClassName(cleaned);
     }
-    final String mapped = SIMPLE_TO_FQN.get(cleaned);
-    if (mapped != null) {
-      return mapped;
-    }
     // Check if this is a known nested type of the declaring class
     if (knownNestedTypes != null && knownNestedTypes.contains(cleaned)) {
       return declaringClassFqn + "." + cleaned;
+    }
+    // An explicit import wins over the built-in simple-type map (e.g. java.sql.Date must not be
+    // coerced to java.util.Date) and over the same-package fallback. This aligns the JavaParser
+    // engine's simple type names with the Spoon engine's fully-qualified names.
+    final String fromImports = resolveFromImports(cleaned, imports);
+    if (fromImports != null) {
+      return fromImports;
+    }
+    final String mapped = SIMPLE_TO_FQN.get(cleaned);
+    if (mapped != null) {
+      return mapped;
     }
     final String packageName = packageNameOf(declaringClassFqn);
     if (!packageName.isBlank()) {
       return packageName + "." + cleaned;
     }
     return cleaned;
+  }
+
+  private String resolveFromImports(final String simpleName, final List<String> imports) {
+    if (imports == null || simpleName == null || simpleName.isBlank()) {
+      return null;
+    }
+    final String suffix = "." + simpleName;
+    for (final String imp : imports) {
+      if (imp == null) {
+        continue;
+      }
+      final String trimmed = imp.trim();
+      if (trimmed.startsWith("static ") || trimmed.endsWith(".*")) {
+        continue;
+      }
+      if (trimmed.endsWith(suffix)) {
+        return canonicalizeClassName(trimmed);
+      }
+    }
+    return null;
   }
 
   private boolean isPrimitive(final String type) {

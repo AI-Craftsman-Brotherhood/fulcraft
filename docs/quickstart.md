@@ -158,11 +158,12 @@ The following commands assume you run them from the target project root. If not,
 The default pipeline runs stages defined in `default-workflow.json` as a DAG:
 
 ```text
-ANALYZE ─┬─→ REPORT
-         └─→ DOCUMENT ──→ EXPLORE
+ANALYZE ─┬─→ REPORT ───┐
+         │             ├─→ EXPLORE
+         └─→ DOCUMENT ─┘
 ```
 
-`REPORT` and `DOCUMENT` both depend on `ANALYZE` and may run in parallel.
+`REPORT` and `DOCUMENT` both depend on `ANALYZE` and may run in parallel; `EXPLORE` waits for both. You can replace this default DAG by pointing `pipeline.workflow_file` in `config.json` to your own workflow JSON — when set, that file's `nodes` and `depends_on` edges drive execution instead of the bundled `default-workflow.json`.
 
 ```bash
 $FUL_HOME/scripts/ful run

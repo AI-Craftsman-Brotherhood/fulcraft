@@ -46,9 +46,9 @@ The schema defines types, required fields, and allowed values so configuration d
 | `verification` | object | No | Verification-stage settings |
 | `brittle_test_rules` | object | No | Fragile-test detection rules |
 
-> The schema uses `additionalProperties: false`, so unknown keys are rejected.
+> The schema uses `additionalProperties: false`, so unknown top-level keys are rejected.
 >
-> **Note:** The v1 schema does not yet cover all code-supported sections. The following top-level keys are loaded by the application but are not validated by the v1 schema: `mocking`, `local_fix`, `log`, `docs`, `cache`, `interceptors`, `verification`, `brittle_test_rules`. If you use `schema_version: 1` alongside these sections, schema validation may reject them. Similarly, some fields within `analysis`, `selection_rules`, `generation`, `llm`, and `cli` exist in the application but are not yet reflected in the v1 schema.
+> **Note:** All top-level keys listed above are now registered in the v1 schema. The following sections are accepted as opaque objects (their internal fields are not strictly validated yet, but their presence no longer fails validation): `mocking`, `local_fix`, `log`, `docs`, `cache`, `interceptors`, `verification`, `brittle_test_rules`. Internal field-level schemas for these sections, and for some fields within `analysis`, `selection_rules`, `generation`, `llm`, and `cli`, are still being filled in.
 
 ---
 
@@ -79,7 +79,8 @@ The schema defines types, required fields, and allowed values so configuration d
 
 | Key | Type | Description |
 |---|---|---|
-| `engine` | string | Analysis engine |
+| `engine` | string | Analysis engine. Accepts `javaparser`, `spoon`, `composite` (aliases: `all`, `both`). Defaults to `composite` when unset |
+| `language_level` | string | Java source level used by Spoon and JavaParser. Accepts `JAVA_8`..`JAVA_21`, `BLEEDING_EDGE`, `POPULAR`, `CURRENT` (case-insensitive). Defaults to `JAVA_21` (LTS) |
 | `source_root_mode` | enum | `AUTO`, `STRICT` |
 | `source_root_paths` | array of string | Source-root paths |
 | `source_charset` | string | Source encoding such as `UTF-8` |

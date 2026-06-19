@@ -4,7 +4,7 @@ import com.craftsmanbro.fulcraft.infrastructure.cache.contract.CacheRevalidation
 import com.craftsmanbro.fulcraft.infrastructure.cache.model.CacheRevalidationResult;
 import com.craftsmanbro.fulcraft.infrastructure.logging.impl.Logger;
 import com.craftsmanbro.fulcraft.infrastructure.parser.impl.javaparser.CodeValidator;
-import com.github.javaparser.JavaParser;
+import com.craftsmanbro.fulcraft.infrastructure.parser.impl.javaparser.JavaParserFactory;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -179,7 +179,11 @@ public class CacheRevalidator implements CacheRevalidationPort {
   private static CompilationUnit parseCompilationUnit(final String code) {
     // Cached snippets may still arrive wrapped in Markdown fences.
     final String codeWithoutFences = stripCodeFences(code);
-    final ParseResult<CompilationUnit> parseResult = new JavaParser().parse(codeWithoutFences);
+    // Cache contents come from prior LLM responses; pin LanguageLevels.DEFAULT
+    // (JAVA_21 LTS) so revalidation accepts any Java syntax the cache may hold,
+    // independent of the current analysis.language_level setting.
+    final ParseResult<CompilationUnit> parseResult =
+        JavaParserFactory.newDefaultParser().parse(codeWithoutFences);
     if (!parseResult.isSuccessful()) {
       return null;
     }

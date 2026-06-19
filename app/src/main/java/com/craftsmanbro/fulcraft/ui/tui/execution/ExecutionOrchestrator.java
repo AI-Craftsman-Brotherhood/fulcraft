@@ -51,8 +51,6 @@ public class ExecutionOrchestrator {
     void onIssue(ExecutionIssue issue);
   }
 
-  private static final String DEFAULT_ENGINE_TYPE = "composite";
-
   private static final String META_START_TIME = "startTime";
 
   private static final String GENERATED_TASKS_KEY = "tasks.generated";
@@ -177,8 +175,11 @@ public class ExecutionOrchestrator {
       throws IOException, ReportWriteException {
     final Tracer tracer = telemetry.getTracer();
     final DefaultServiceFactory services = new DefaultServiceFactory(tracer);
+    final String resolvedEngine =
+        com.craftsmanbro.fulcraft.ui.cli.command.support.AnalysisEngineResolver.resolve(
+            null, config);
     final RunAnalysisReportExecutor analysisExecutor =
-        new RunAnalysisReportExecutor(services, DEFAULT_ENGINE_TYPE);
+        new RunAnalysisReportExecutor(services, resolvedEngine);
     return analysisExecutor.execute(
         context,
         true,

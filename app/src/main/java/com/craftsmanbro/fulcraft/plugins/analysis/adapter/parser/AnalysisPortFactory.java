@@ -16,7 +16,11 @@ import java.util.Objects;
  */
 public final class AnalysisPortFactory {
 
-  private static final String DEFAULT_ENGINE_NAME = "spoon";
+  /**
+   * Default engine name. Matches the CLI wiring in {@code DefaultServiceFactory}, which runs both
+   * JavaParser and Spoon in parallel and merges their results.
+   */
+  private static final String DEFAULT_ENGINE_NAME = "composite";
 
   private AnalysisPortFactory() {
     // Utility class
@@ -44,7 +48,7 @@ public final class AnalysisPortFactory {
     if (config.getAnalysis() != null) {
       engineName = config.getAnalysis().getEngine();
     }
-    // Default to Spoon as it provides better type resolution.
+    // Default to Composite to match CLI wiring (DefaultServiceFactory.createDefaultAnalysisPort).
     return create(parseEngineType(engineName));
   }
 
@@ -106,10 +110,11 @@ public final class AnalysisPortFactory {
   /**
    * Gets the default engine type.
    *
-   * @return the default engine type (SPOON)
+   * @return the default engine type ({@link EngineType#COMPOSITE}) -- matches the CLI wiring in
+   *     {@code DefaultServiceFactory.createDefaultAnalysisPort()}.
    */
   public static EngineType getDefaultEngineType() {
-    return EngineType.SPOON;
+    return EngineType.COMPOSITE;
   }
 
   /**
@@ -127,7 +132,7 @@ public final class AnalysisPortFactory {
     }
     return switch (engineName.toLowerCase(Locale.ROOT)) {
       case "javaparser", "jp" -> EngineType.JAVAPARSER;
-      case DEFAULT_ENGINE_NAME -> EngineType.SPOON;
+      case "spoon" -> EngineType.SPOON;
       case "composite", "all", "both" -> EngineType.COMPOSITE;
       default -> getDefaultEngineType();
     };

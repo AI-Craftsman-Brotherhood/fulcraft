@@ -20,21 +20,21 @@ class AnalysisPortFactoryTest {
   }
 
   @Test
-  void create_defaultsToSpoonWhenNoAnalysisConfig() {
+  void create_defaultsToCompositeWhenNoAnalysisConfig() {
     Config config = new Config();
 
     AnalysisPort port = AnalysisPortFactory.create(config);
 
-    assertThat(port).isInstanceOf(SpoonAnalysisAdapter.class);
+    assertThat(port).isInstanceOf(CompositeAnalysisAdapter.class);
   }
 
   @Test
-  void create_defaultsToSpoonWhenEngineBlank() {
+  void create_defaultsToCompositeWhenEngineBlank() {
     Config config = configWithEngine("  ");
 
     AnalysisPort port = AnalysisPortFactory.create(config);
 
-    assertThat(port).isInstanceOf(SpoonAnalysisAdapter.class);
+    assertThat(port).isInstanceOf(CompositeAnalysisAdapter.class);
   }
 
   @ParameterizedTest
@@ -77,8 +77,8 @@ class AnalysisPortFactoryTest {
   }
 
   @Test
-  void getDefaultEngineType_returnsSpoon() {
-    assertThat(AnalysisPortFactory.getDefaultEngineType()).isEqualTo(EngineType.SPOON);
+  void getDefaultEngineType_returnsComposite() {
+    assertThat(AnalysisPortFactory.getDefaultEngineType()).isEqualTo(EngineType.COMPOSITE);
   }
 
   @Test

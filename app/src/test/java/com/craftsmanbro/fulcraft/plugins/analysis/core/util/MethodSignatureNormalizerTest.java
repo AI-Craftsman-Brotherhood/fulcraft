@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.craftsmanbro.fulcraft.plugins.analysis.core.model.MethodId;
 import com.craftsmanbro.fulcraft.plugins.analysis.model.MethodInfo;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -95,6 +96,41 @@ class MethodSignatureNormalizerTest {
     assertThat(id.methodName()).isEmpty();
     assertThat(id.parameterTypes()).isEmpty();
     assertThat(id.returnType()).isNull();
+  }
+
+  @Test
+  void resolvesSimpleParameterTypesViaImports() {
+    MethodInfo simple = method("describe", "describe(Shape)");
+    MethodInfo fqn = method("describe", "describe(com.demo.model.Shape)");
+    List<String> imports =
+        List.of("com.demo.model.Circle", "com.demo.model.Shape", "java.util.List");
+
+    MethodId fromSimple =
+        normalizer.toMethodId("com.demo.service.ShapeService", simple, null, imports);
+    MethodId fromFqn = normalizer.toMethodId("com.demo.service.ShapeService", fqn, null, imports);
+
+    assertThat(fromSimple).isEqualTo(fromFqn);
+    assertThat(fromSimple.parameterTypes()).containsExactly("com.demo.model.Shape");
+  }
+
+  @Test
+  void importsTakePrecedenceOverDefaultSimpleTypeMap() {
+    // A file importing java.sql.Date must not be coerced to java.util.Date.
+    MethodInfo method = method("at", "at(Date)");
+    List<String> imports = List.of("java.sql.Date");
+
+    MethodId id = normalizer.toMethodId("com.demo.Repo", method, null, imports);
+
+    assertThat(id.parameterTypes()).containsExactly("java.sql.Date");
+  }
+
+  @Test
+  void fallsBackToSamePackageWhenImportAbsent() {
+    MethodInfo method = method("describe", "describe(Shape)");
+
+    MethodId id = normalizer.toMethodId("com.demo.service.ShapeService", method, null, List.of());
+
+    assertThat(id.parameterTypes()).containsExactly("com.demo.service.Shape");
   }
 
   private MethodInfo method(String name, String signature) {

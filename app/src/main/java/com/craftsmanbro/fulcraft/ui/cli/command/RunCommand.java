@@ -10,6 +10,7 @@ import com.craftsmanbro.fulcraft.ui.cli.command.run.RunAnalysisReportExecutor;
 import com.craftsmanbro.fulcraft.ui.cli.command.run.RunPipelineExecution;
 import com.craftsmanbro.fulcraft.ui.cli.command.run.RunPipelineLogging;
 import com.craftsmanbro.fulcraft.ui.cli.command.run.RunStepSelection;
+import com.craftsmanbro.fulcraft.ui.cli.command.support.AnalysisEngineResolver;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -209,12 +210,14 @@ public class RunCommand extends AbstractCliCommand {
 
   private int runAnalysisReportOnly(final RunContext context)
       throws IOException, ReportWriteException {
-    return new RunAnalysisReportExecutor(main.getServices(), engineType).execute(context);
+    final String resolvedEngine = AnalysisEngineResolver.resolve(engineType, context.getConfig());
+    return new RunAnalysisReportExecutor(main.getServices(), resolvedEngine).execute(context);
   }
 
   private int runAnalysisReportWithDocument(final RunContext context)
       throws IOException, ReportWriteException {
-    return new RunAnalysisReportExecutor(main.getServices(), engineType).execute(context, true);
+    final String resolvedEngine = AnalysisEngineResolver.resolve(engineType, context.getConfig());
+    return new RunAnalysisReportExecutor(main.getServices(), resolvedEngine).execute(context, true);
   }
 
   private int runPipeline(

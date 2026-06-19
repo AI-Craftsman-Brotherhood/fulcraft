@@ -110,6 +110,16 @@
           "enum": ["strict", "standard", "relaxed"]
         }
       }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "language_level": {
+          "type": "string",
+          "description": "Source Java language level used by Spoon and JavaParser. Accepts JAVA_8..JAVA_21, BLEEDING_EDGE, POPULAR, CURRENT (case-insensitive; underscores/spaces/hyphens accepted). Defaults to JAVA_21 (LTS) when unset."
+        }
+      }
     }
   }
 }

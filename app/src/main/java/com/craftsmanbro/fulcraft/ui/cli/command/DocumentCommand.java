@@ -10,6 +10,7 @@ import com.craftsmanbro.fulcraft.plugins.analysis.model.AnalysisResult;
 import com.craftsmanbro.fulcraft.plugins.document.config.DocumentOverrides;
 import com.craftsmanbro.fulcraft.plugins.document.flow.DocumentFlow;
 import com.craftsmanbro.fulcraft.ui.cli.UiLogger;
+import com.craftsmanbro.fulcraft.ui.cli.command.support.AnalysisEngineResolver;
 import com.craftsmanbro.fulcraft.ui.cli.command.support.CommandMessageSupport;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -142,7 +143,10 @@ public class DocumentCommand extends BaseCliCommand {
 
   protected AnalysisResult analyzeProject(final Config config, final Path projectRoot)
       throws IOException {
-    final var analysisPort = main.getServices().createAnalysisPort("composite");
+    // DocumentCommand exposes no --engine flag, so the engine comes from
+    // analysis.engine in config (falling back to composite).
+    final String resolvedEngine = AnalysisEngineResolver.resolve(null, config);
+    final var analysisPort = main.getServices().createAnalysisPort(resolvedEngine);
     final AnalysisResult result = analysisPort.analyze(projectRoot, config);
     enrichAnalysisResultWithDynamicResolutions(result, config, projectRoot);
     return result;

@@ -1,7 +1,6 @@
 package com.craftsmanbro.fulcraft.infrastructure.parser.impl.javaparser;
 
 import com.craftsmanbro.fulcraft.infrastructure.logging.impl.Logger;
-import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -310,7 +309,10 @@ public class CodeValidator {
   }
 
   private ParseResult<CompilationUnit> parse(final String code) {
-    return new JavaParser().parse(code);
+    // LLM-generated test code may use any Java syntax up to JAVA_21; pin the project
+    // default rather than the user's analysis.language_level so validation never rejects
+    // syntactically valid output for a reason orthogonal to the test target.
+    return JavaParserFactory.newDefaultParser().parse(code);
   }
 
   /**

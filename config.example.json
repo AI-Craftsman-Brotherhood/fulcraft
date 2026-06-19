@@ -51,6 +51,7 @@
       "app/src/main/java"
     ],
     "source_charset": "UTF-8",
+    "language_level": "JAVA_21",
     "classpath": {
       "mode": "AUTO"
     },

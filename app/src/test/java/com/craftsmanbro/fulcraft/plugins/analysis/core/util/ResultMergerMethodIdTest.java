@@ -80,6 +80,77 @@ class ResultMergerMethodIdTest {
         .containsExactly("com.example.dep.Helper#process(java.lang.String, int)");
   }
 
+  @Test
+  void mergesCrossEngineMethodsResolvedViaImports() {
+    // JavaParser emits simple parameter names; Spoon emits fully-qualified names. With the class
+    // imports, both must resolve to the same MethodId so the method is merged, not duplicated.
+    ClassInfo jp = new ClassInfo();
+    jp.setFqn("com.demo.service.ShapeService");
+    jp.setImports(new ArrayList<>(List.of("com.demo.model.Shape")));
+    jp.setMethods(new ArrayList<>(List.of(named("describe", "describe(Shape)"))));
+    jp.setMethodCount(1);
+
+    ClassInfo spoon = new ClassInfo();
+    spoon.setFqn("com.demo.service.ShapeService");
+    spoon.setImports(new ArrayList<>(List.of("com.demo.model.Shape")));
+    spoon.setMethods(new ArrayList<>(List.of(named("describe", "describe(com.demo.model.Shape)"))));
+    spoon.setMethodCount(1);
+
+    AnalysisResult primary = new AnalysisResult();
+    primary.setClasses(new ArrayList<>(List.of(jp)));
+    AnalysisResult secondary = new AnalysisResult();
+    secondary.setClasses(new ArrayList<>(List.of(spoon)));
+
+    AnalysisResult merged = new ResultMerger().merge(primary, secondary);
+
+    ClassInfo cls = merged.getClasses().getFirst();
+    assertThat(cls.getMethods()).hasSize(1);
+    assertThat(cls.getMethods().getFirst().getMethodId())
+        .isEqualTo("com.demo.service.ShapeService#describe(com.demo.model.Shape)");
+  }
+
+  @Test
+  void dropsWithinClassDuplicateMethods() {
+    ClassInfo withDupes = new ClassInfo();
+    withDupes.setFqn("com.demo.model.Color");
+    withDupes.setMethods(
+        new ArrayList<>(
+            List.of(
+                named("<init>", "com.demo.model.Color()"),
+                named("<init>", "com.demo.model.Color()"),
+                named("isPrimary", "isPrimary()"))));
+    withDupes.setMethodCount(3);
+
+    ClassInfo other = new ClassInfo();
+    other.setFqn("com.demo.model.Other");
+    other.setMethods(new ArrayList<>(List.of(named("noop", "noop()"))));
+    other.setMethodCount(1);
+
+    AnalysisResult primary = new AnalysisResult();
+    primary.setClasses(new ArrayList<>(List.of(withDupes)));
+    AnalysisResult secondary = new AnalysisResult();
+    secondary.setClasses(new ArrayList<>(List.of(other)));
+
+    AnalysisResult merged = new ResultMerger().merge(primary, secondary);
+
+    ClassInfo color =
+        merged.getClasses().stream()
+            .filter(c -> "com.demo.model.Color".equals(c.getFqn()))
+            .findFirst()
+            .orElseThrow();
+    assertThat(color.getMethods())
+        .extracting(MethodInfo::getName)
+        .containsExactly("<init>", "isPrimary");
+    assertThat(color.getMethodCount()).isEqualTo(2);
+  }
+
+  private MethodInfo named(String name, String signature) {
+    MethodInfo mi = new MethodInfo();
+    mi.setName(name);
+    mi.setSignature(signature);
+    return mi;
+  }
+
   private ClassInfo classInfoWithMethods(MethodInfo method) {
     ClassInfo cls = new ClassInfo();
     cls.setFqn("com.example.legacy.ComplexInvoiceService");
