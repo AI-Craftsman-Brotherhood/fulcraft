@@ -49,8 +49,8 @@ class SpoonComplianceLevelsTest {
   @DisplayName("aliases map to their concrete versions")
   void aliases() {
     assertThat(SpoonComplianceLevels.resolve("BLEEDING_EDGE")).isEqualTo(21);
-    assertThat(SpoonComplianceLevels.resolve("POPULAR")).isEqualTo(11);
-    assertThat(SpoonComplianceLevels.resolve("CURRENT")).isEqualTo(16);
+    assertThat(SpoonComplianceLevels.resolve("POPULAR")).isEqualTo(17);
+    assertThat(SpoonComplianceLevels.resolve("CURRENT")).isEqualTo(21);
   }
 
   @Test

@@ -59,6 +59,14 @@ class LanguageLevelsTest {
   }
 
   @Test
+  @DisplayName("POPULAR/CURRENT pin to concrete LTS levels matching the Spoon engine")
+  void popularAndCurrentAliases() {
+    // Kept in sync with SpoonComplianceLevels: POPULAR = Java 17, CURRENT = Java 21.
+    assertThat(LanguageLevels.resolve("POPULAR")).isEqualTo(LanguageLevel.JAVA_17);
+    assertThat(LanguageLevels.resolve("current")).isEqualTo(LanguageLevel.JAVA_21);
+  }
+
+  @Test
   @DisplayName("unknown values fall back to DEFAULT without throwing")
   void unknownValuesFallBack() {
     assertThat(LanguageLevels.resolve("JAVA_99")).isEqualTo(LanguageLevels.DEFAULT);

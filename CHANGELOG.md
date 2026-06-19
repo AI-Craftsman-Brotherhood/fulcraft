@@ -28,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The JavaParser analysis engine now extracts `record` and `enum` types (record components, synthesized canonical constructors and accessors, enum constants and constructors). Previously only classes and interfaces were traversed, so `--engine javaparser` silently dropped records and enums.
 - Analysis `file_path` is now project-root-relative (e.g. `src/main/java/com/foo/Bar.java`) consistently across the JavaParser and Spoon engines. The Spoon engine previously emitted source-root-relative paths, which split report/document output for the same package across two directory trees.
 - The composite engine no longer emits duplicate methods. Parameter types are resolved through the declaring class's imports so both engines agree on a method's identity; constructors are consistently named `<init>`; an enum's implicit constructor is no longer counted twice; and within-class duplicates are dropped during merge.
+- The `language_level` aliases `POPULAR` and `CURRENT` now resolve to the same concrete level in both engines (`POPULAR` = Java 17, `CURRENT` = Java 21), instead of differing between JavaParser and Spoon.
+
+### Added (tests)
+- Smoke integration test for the composite analysis pipeline and an opt-in end-to-end CLI test for `ful analyze`, populating the previously-empty `integrationTest`/`e2eTest` source sets.
 
 ### Removed
 - Internal-only documents from `docs/proposals/` that are not appropriate for the public repository.
