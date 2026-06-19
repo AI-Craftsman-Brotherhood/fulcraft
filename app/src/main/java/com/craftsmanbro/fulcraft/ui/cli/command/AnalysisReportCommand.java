@@ -14,6 +14,7 @@ import com.craftsmanbro.fulcraft.plugins.analysis.model.ClassInfo;
 import com.craftsmanbro.fulcraft.plugins.reporting.contract.ReportWriteException;
 import com.craftsmanbro.fulcraft.plugins.reporting.model.ReportData;
 import com.craftsmanbro.fulcraft.ui.cli.UiLogger;
+import com.craftsmanbro.fulcraft.ui.cli.command.support.AnalysisEngineResolver;
 import com.craftsmanbro.fulcraft.ui.cli.command.support.AnalysisReportExecutionSupport;
 import com.craftsmanbro.fulcraft.ui.cli.command.support.CommandMessageSupport;
 import java.io.IOException;
@@ -46,8 +47,6 @@ import tools.jackson.databind.ObjectMapper;
     mixinStandardHelpOptions = true)
 @Category("analysis")
 public class AnalysisReportCommand extends BaseCliCommand {
-
-  private static final String DEFAULT_ENGINE_TYPE = "composite";
 
   @Option(
       names = {"-p", "--project-root"},
@@ -84,8 +83,7 @@ public class AnalysisReportCommand extends BaseCliCommand {
 
   @Option(
       names = {"--engine"},
-      descriptionKey = "option.common.engine",
-      defaultValue = DEFAULT_ENGINE_TYPE)
+      descriptionKey = "option.common.engine")
   private String engineType;
 
   @Option(
@@ -164,7 +162,8 @@ public class AnalysisReportCommand extends BaseCliCommand {
 
   private AnalysisResult analyzeProject(final Config config, final Path projectRoot)
       throws IOException {
-    final var analysisPort = main.getServices().createAnalysisPort(engineType);
+    final String resolvedEngine = AnalysisEngineResolver.resolve(engineType, config);
+    final var analysisPort = main.getServices().createAnalysisPort(resolvedEngine);
     return analysisPort.analyze(projectRoot, config);
   }
 

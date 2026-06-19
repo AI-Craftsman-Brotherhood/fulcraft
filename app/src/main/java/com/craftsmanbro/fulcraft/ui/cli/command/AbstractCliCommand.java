@@ -5,6 +5,7 @@ import com.craftsmanbro.fulcraft.infrastructure.fs.impl.RunIdGenerator;
 import com.craftsmanbro.fulcraft.kernel.pipeline.PipelineRunner;
 import com.craftsmanbro.fulcraft.kernel.pipeline.context.RunContext;
 import com.craftsmanbro.fulcraft.ui.cli.UiLogger;
+import com.craftsmanbro.fulcraft.ui.cli.command.support.AnalysisEngineResolver;
 import com.craftsmanbro.fulcraft.ui.cli.wiring.PipelineRunnerFactory;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -37,8 +38,6 @@ public abstract class AbstractCliCommand extends BaseCliCommand {
 
   private static final String META_START_TIME = "startTime";
 
-  private static final String DEFAULT_ENGINE_TYPE = "composite";
-
   private static final String CONFIG_REQUIRED_MESSAGE = "Config is required";
 
   @Option(
@@ -59,8 +58,7 @@ public abstract class AbstractCliCommand extends BaseCliCommand {
 
   @Option(
       names = {"--engine"},
-      descriptionKey = "option.common.engine",
-      defaultValue = DEFAULT_ENGINE_TYPE)
+      descriptionKey = "option.common.engine")
   protected String engineType;
 
   @Option(
@@ -234,8 +232,9 @@ public abstract class AbstractCliCommand extends BaseCliCommand {
   protected PipelineRunner createRunner(final Config config) {
     Objects.requireNonNull(main, "Parent command is required");
     Objects.requireNonNull(config, CONFIG_REQUIRED_MESSAGE);
+    final String resolvedEngine = AnalysisEngineResolver.resolve(engineType, config);
     return PipelineRunnerFactory.createDefault(
-        config, main.getServices(), engineType, pluginClasspath);
+        config, main.getServices(), resolvedEngine, pluginClasspath);
   }
 
   /**

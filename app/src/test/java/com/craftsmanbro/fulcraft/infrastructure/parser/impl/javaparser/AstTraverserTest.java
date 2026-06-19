@@ -112,6 +112,80 @@ class AstTraverserTest {
     assertFalse(anonymousClass.get().getMethods().isEmpty());
   }
 
+  @Test
+  void traverse_extractsRecordWithSynthesizedConstructorAndAccessors() {
+    String source =
+        """
+        package com.demo;
+
+        public record Point(int x, int y) {
+          int sum() {
+            return x + y;
+          }
+        }
+        """;
+
+    ClassInfo point = traverseSingle(source, "com/demo/Point.java", "com.demo.Point");
+
+    assertTrue(methodNames(point).contains("<init>"));
+    assertTrue(methodNames(point).contains("sum"));
+    assertTrue(methodNames(point).contains("x"), "synthesized accessor x() expected");
+    assertTrue(methodNames(point).contains("y"), "synthesized accessor y() expected");
+    assertTrue(fieldNames(point).contains("x"));
+    assertTrue(fieldNames(point).contains("y"));
+    assertFalse(point.isInterface());
+  }
+
+  @Test
+  void traverse_extractsEnumWithConstantsAndImplicitConstructor() {
+    String source =
+        """
+        package com.demo;
+
+        public enum Color {
+          RED,
+          GREEN;
+
+          boolean isRed() {
+            return this == RED;
+          }
+        }
+        """;
+
+    ClassInfo color = traverseSingle(source, "com/demo/Color.java", "com.demo.Color");
+
+    assertTrue(methodNames(color).contains("<init>"));
+    assertTrue(methodNames(color).contains("isRed"));
+    assertTrue(fieldNames(color).contains("RED"));
+    assertTrue(fieldNames(color).contains("GREEN"));
+  }
+
+  private ClassInfo traverseSingle(String source, String relativePath, String fqn) {
+    CompilationUnit cu =
+        JavaParserFactory.newDefaultParser().parse(source).getResult().orElseThrow();
+    List<String> importStrings = toImportStrings(cu);
+    RemovedApiDetector.RemovedApiImportInfo removedApiImports =
+        RemovedApiDetector.fromImports(importStrings);
+    AnalysisResult result = new AnalysisResult();
+    AnalysisContext context = new AnalysisContext();
+    AstTraverser traverser = new AstTraverser(new DependencyGraphBuilder());
+    Path srcRoot = Path.of("/project/src/main/java");
+    Path path = srcRoot.resolve(relativePath);
+    traverser.traverse(cu, result, srcRoot, path, importStrings, removedApiImports, context);
+    return result.getClasses().stream()
+        .filter(c -> fqn.equals(c.getFqn()))
+        .findFirst()
+        .orElseThrow();
+  }
+
+  private static List<String> methodNames(ClassInfo info) {
+    return info.getMethods().stream().map(MethodInfo::getName).toList();
+  }
+
+  private static List<String> fieldNames(ClassInfo info) {
+    return info.getFields().stream().map(FieldInfo::getName).toList();
+  }
+
   private static boolean hasFieldType(ClassInfo info, String type) {
     return info.getFields().stream().map(FieldInfo::getType).anyMatch(type::equals);
   }

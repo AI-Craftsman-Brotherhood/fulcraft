@@ -87,7 +87,8 @@ public class ResultMerger {
 
   private void ensureMethodId(final ClassInfo cls, final MethodInfo method) {
     if (method.getMethodId() == null || method.getMethodId().isBlank()) {
-      final MethodId id = signatureNormalizer.toMethodId(cls.getFqn(), method);
+      final MethodId id =
+          signatureNormalizer.toMethodId(cls.getFqn(), method, null, cls.getImports());
       method.setMethodId(id.toString());
     }
   }
@@ -199,10 +200,20 @@ public class ResultMerger {
     if (cls == null) {
       return;
     }
+    final Map<String, MethodInfo> uniqueById = new LinkedHashMap<>();
     for (final MethodInfo method : cls.getMethods()) {
-      final MethodId methodId = signatureNormalizer.toMethodId(cls.getFqn(), method);
+      final MethodId methodId =
+          signatureNormalizer.toMethodId(cls.getFqn(), method, null, cls.getImports());
       method.setMethodId(methodId.toString());
       method.setRawSignatures(mergeRawSignatures(method.getRawSignatures(), method.getSignature()));
+      // Drop within-class duplicates (same MethodId is an illegal Java overload, so this only
+      // removes analyzer artifacts such as an enum's doubly-emitted implicit constructor).
+      uniqueById.putIfAbsent(methodId.toString(), method);
+    }
+    if (uniqueById.size() != cls.getMethods().size()) {
+      final List<MethodInfo> deduped = new ArrayList<>(uniqueById.values());
+      cls.setMethods(deduped);
+      cls.setMethodCount(deduped.size());
     }
   }
 
@@ -210,13 +221,15 @@ public class ResultMerger {
     final List<MethodInfo> targetMethods = new ArrayList<>(target.getMethods());
     final Map<MethodId, MethodInfo> targetMethodsById = new LinkedHashMap<>();
     for (final MethodInfo method : targetMethods) {
-      final MethodId methodId = signatureNormalizer.toMethodId(target.getFqn(), method);
+      final MethodId methodId =
+          signatureNormalizer.toMethodId(target.getFqn(), method, null, target.getImports());
       method.setMethodId(methodId.toString());
       method.setRawSignatures(mergeRawSignatures(method.getRawSignatures(), method.getSignature()));
       targetMethodsById.put(methodId, method);
     }
     for (final MethodInfo incoming : source.getMethods()) {
-      final MethodId methodId = signatureNormalizer.toMethodId(source.getFqn(), incoming);
+      final MethodId methodId =
+          signatureNormalizer.toMethodId(source.getFqn(), incoming, null, source.getImports());
       incoming.setMethodId(methodId.toString());
       incoming.setRawSignatures(
           mergeRawSignatures(incoming.getRawSignatures(), incoming.getSignature()));

@@ -286,12 +286,16 @@ public class AnalysisVisualReportWriter {
       if (packageName == null || packageName.isBlank()) {
         continue;
       }
+      final StringBuilder current = new StringBuilder();
       String parent = "";
-      String current = "";
       for (final String segment : packageName.split("\\.")) {
-        current = current.isEmpty() ? segment : current + "." + segment;
-        childrenByParent.computeIfAbsent(parent, key -> new TreeSet<>()).add(current);
-        parent = current;
+        if (current.length() > 0) {
+          current.append('.');
+        }
+        current.append(segment);
+        final String currentStr = current.toString();
+        childrenByParent.computeIfAbsent(parent, key -> new TreeSet<>()).add(currentStr);
+        parent = currentStr;
       }
       childrenByParent.computeIfAbsent(parent, key -> new TreeSet<>());
     }
@@ -343,11 +347,15 @@ public class AnalysisVisualReportWriter {
       return includedPackages.contains("") ? List.of("") : List.of();
     }
     final List<String> ancestors = new ArrayList<>();
-    String current = "";
+    final StringBuilder current = new StringBuilder();
     for (final String segment : packageName.split("\\.")) {
-      current = current.isEmpty() ? segment : current + "." + segment;
-      if (includedPackages.contains(current)) {
-        ancestors.add(current);
+      if (current.length() > 0) {
+        current.append('.');
+      }
+      current.append(segment);
+      final String currentStr = current.toString();
+      if (includedPackages.contains(currentStr)) {
+        ancestors.add(currentStr);
       }
     }
     return ancestors;

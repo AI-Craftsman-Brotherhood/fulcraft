@@ -8,9 +8,23 @@ import com.github.javaparser.ParserConfiguration;
  * Single source of truth for constructing {@link JavaParser} instances with a consistent {@link
  * ParserConfiguration.LanguageLevel}.
  *
- * <p>All analysis-path JavaParser usages must go through this factory; only the formatter/
- * brittleness paths are allowed to instantiate {@code JavaParser} directly because they
- * intentionally pin {@code BLEEDING_EDGE}.
+ * <p>Two construction modes are exposed:
+ *
+ * <ul>
+ *   <li>{@link #newParser(Config)} / {@link #newConfiguration(Config)} honor the user's {@code
+ *       analysis.language_level} setting. Use these on the main analysis path that processes user
+ *       project sources.
+ *   <li>{@link #newDefaultParser()} pins {@link LanguageLevels#DEFAULT} (JAVA_21 LTS) regardless of
+ *       configuration. Use this for parsers that handle inputs orthogonal to the user's project
+ *       language level — e.g. LLM-generated snippets, cached responses, internal expression
+ *       analysis, and project-wide symbol indexing — where the broadest syntactic support is
+ *       required and silently degrading to a narrower level would drop valid constructs.
+ * </ul>
+ *
+ * <p>Formatter and brittleness paths that intentionally pin {@code BLEEDING_EDGE} (e.g. {@code
+ * TestCodeFormatter}, {@code JavaParserBrittleTestChecker}, {@code BranchSummaryExtractor}) are the
+ * only places allowed to instantiate {@code JavaParser} directly without going through this
+ * factory.
  */
 public final class JavaParserFactory {
 

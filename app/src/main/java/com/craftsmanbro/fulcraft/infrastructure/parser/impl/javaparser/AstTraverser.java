@@ -14,13 +14,19 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.EnumConstantDeclaration;
+import com.github.javaparser.ast.body.EnumDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.RecordDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Helper class to traverse AST and populate AnalysisResult and AnalysisContext. Extracted from
@@ -43,6 +49,8 @@ class AstTraverser {
       final RemovedApiDetector.RemovedApiImportInfo removedApiImports,
       final AnalysisContext context) {
     analyzeClasses(cu, result, srcRoot, path, importStrings, removedApiImports, context);
+    analyzeRecords(cu, result, srcRoot, path, importStrings, removedApiImports, context);
+    analyzeEnums(cu, result, srcRoot, path, importStrings, removedApiImports, context);
     analyzeAnonymousClasses(cu, result, srcRoot, path, importStrings, removedApiImports, context);
   }
 
@@ -104,21 +112,239 @@ class AstTraverser {
     return classInfo;
   }
 
+  // --- Records ----------------------------------------------------------------------------------
+
+  private void analyzeRecords(
+      final CompilationUnit cu,
+      final AnalysisResult result,
+      final Path srcRoot,
+      final Path path,
+      final List<String> importStrings,
+      final RemovedApiDetector.RemovedApiImportInfo removedApiImports,
+      final AnalysisContext context) {
+    cu.findAll(RecordDeclaration.class)
+        .forEach(
+            r -> {
+              final ClassInfo classInfo = buildRecordInfo(r, srcRoot, path, importStrings);
+              // Canonical constructor: declared, or synthesized to mirror Spoon's implicit one.
+              if (r.getConstructors().isEmpty()) {
+                classInfo.addMethod(
+                    syntheticMethod(
+                        "<init>",
+                        canonicalConstructorSignature(r),
+                        "public",
+                        r.getParameters().size()));
+              } else {
+                addConstructorsAsInit(r.getConstructors(), classInfo, removedApiImports, context);
+              }
+              addDeclaredMethods(r.getMethods(), classInfo, removedApiImports, context);
+              addSyntheticRecordAccessors(r, classInfo);
+              classInfo.setMethodCount(classInfo.getMethods().size());
+              result.getClasses().add(classInfo);
+            });
+  }
+
+  private ClassInfo buildRecordInfo(
+      final RecordDeclaration r, final Path srcRoot, final Path path, final List<String> imports) {
+    final ClassInfo classInfo = new ClassInfo();
+    classInfo.setFqn(r.getFullyQualifiedName().orElse(r.getNameAsString()));
+    classInfo.setFilePath(srcRoot.relativize(path).toString());
+    classInfo.setLoc(r.getRange().map(range -> range.end.line - range.begin.line + 1).orElse(0));
+    classInfo.setInterface(false);
+    classInfo.setAbstract(false);
+    classInfo.setAnonymous(false);
+    classInfo.setNestedClass(r.isNestedType());
+    classInfo.setHasNestedClasses(hasNestedTypeMembers(r));
+    classInfo.setExtendsTypes(new ArrayList<>());
+    classInfo.setImplementsTypes(
+        r.getImplementedTypes().stream()
+            .map(com.github.javaparser.ast.nodeTypes.NodeWithSimpleName::getNameAsString)
+            .toList());
+    classInfo.setFields(new ArrayList<>());
+    classInfo.setAnnotations(
+        r.getAnnotations().stream()
+            .map(com.github.javaparser.ast.nodeTypes.NodeWithName::getNameAsString)
+            .toList());
+    classInfo.setImports(imports);
+    classInfo.setMethods(new ArrayList<>());
+    final String packageName = extractPackageName(classInfo.getFqn());
+    for (final Parameter component : r.getParameters()) {
+      classInfo.addField(
+          ResultBuilder.fieldInfo(
+              component.getNameAsString(),
+              resolveParameterTypeFqn(component, packageName, imports),
+              "private",
+              false,
+              true));
+    }
+    return classInfo;
+  }
+
+  private String canonicalConstructorSignature(final RecordDeclaration r) {
+    final List<String> types = new ArrayList<>();
+    for (final Parameter component : r.getParameters()) {
+      types.add(component.getType().asString());
+    }
+    return "<init>(" + String.join(", ", types) + ")";
+  }
+
+  private void addSyntheticRecordAccessors(final RecordDeclaration r, final ClassInfo classInfo) {
+    final Set<String> noArgMethodNames = new LinkedHashSet<>();
+    for (final MethodInfo method : classInfo.getMethods()) {
+      if (method.getParameterCount() == 0 && method.getName() != null) {
+        noArgMethodNames.add(method.getName());
+      }
+    }
+    for (final Parameter component : r.getParameters()) {
+      final String name = component.getNameAsString();
+      if (!noArgMethodNames.contains(name)) {
+        classInfo.addMethod(syntheticMethod(name, name + "()", "public", 0));
+      }
+    }
+  }
+
+  // --- Enums ------------------------------------------------------------------------------------
+
+  private void analyzeEnums(
+      final CompilationUnit cu,
+      final AnalysisResult result,
+      final Path srcRoot,
+      final Path path,
+      final List<String> importStrings,
+      final RemovedApiDetector.RemovedApiImportInfo removedApiImports,
+      final AnalysisContext context) {
+    cu.findAll(EnumDeclaration.class)
+        .forEach(
+            e -> {
+              final ClassInfo classInfo = buildEnumInfo(e, srcRoot, path, importStrings);
+              if (e.getConstructors().isEmpty()) {
+                classInfo.addMethod(syntheticMethod("<init>", "<init>()", "private", 0));
+              } else {
+                addConstructorsAsInit(e.getConstructors(), classInfo, removedApiImports, context);
+              }
+              addDeclaredMethods(e.getMethods(), classInfo, removedApiImports, context);
+              classInfo.setMethodCount(classInfo.getMethods().size());
+              result.getClasses().add(classInfo);
+            });
+  }
+
+  private ClassInfo buildEnumInfo(
+      final EnumDeclaration e, final Path srcRoot, final Path path, final List<String> imports) {
+    final ClassInfo classInfo = new ClassInfo();
+    classInfo.setFqn(e.getFullyQualifiedName().orElse(e.getNameAsString()));
+    classInfo.setFilePath(srcRoot.relativize(path).toString());
+    classInfo.setLoc(e.getRange().map(range -> range.end.line - range.begin.line + 1).orElse(0));
+    classInfo.setInterface(false);
+    classInfo.setAbstract(false);
+    classInfo.setAnonymous(false);
+    classInfo.setNestedClass(e.isNestedType());
+    classInfo.setHasNestedClasses(hasNestedTypeMembers(e));
+    classInfo.setExtendsTypes(new ArrayList<>());
+    classInfo.setImplementsTypes(
+        e.getImplementedTypes().stream()
+            .map(com.github.javaparser.ast.nodeTypes.NodeWithSimpleName::getNameAsString)
+            .toList());
+    classInfo.setFields(new ArrayList<>());
+    classInfo.setAnnotations(
+        e.getAnnotations().stream()
+            .map(com.github.javaparser.ast.nodeTypes.NodeWithName::getNameAsString)
+            .toList());
+    classInfo.setImports(imports);
+    classInfo.setMethods(new ArrayList<>());
+    final String simpleName = e.getNameAsString();
+    for (final EnumConstantDeclaration entry : e.getEntries()) {
+      classInfo.addField(
+          ResultBuilder.fieldInfo(entry.getNameAsString(), simpleName, "public", true, true));
+    }
+    final String packageName = extractPackageName(classInfo.getFqn());
+    for (final FieldDeclaration field : e.getFields()) {
+      final String visibility =
+          field.getAccessSpecifier().asString().toLowerCase(java.util.Locale.ROOT);
+      for (final VariableDeclarator declarator : field.getVariables()) {
+        classInfo.addField(
+            ResultBuilder.fieldInfo(
+                declarator.getNameAsString(),
+                resolveTypeFqn(declarator, packageName, imports),
+                visibility,
+                field.isStatic(),
+                field.isFinal()));
+      }
+    }
+    return classInfo;
+  }
+
+  // --- Shared helpers for records/enums ---------------------------------------------------------
+
+  private boolean hasNestedTypeMembers(
+      final com.github.javaparser.ast.body.TypeDeclaration<?> type) {
+    return type.getMembers().stream()
+        .anyMatch(
+            m ->
+                m instanceof ClassOrInterfaceDeclaration
+                    || m instanceof EnumDeclaration
+                    || m instanceof RecordDeclaration);
+  }
+
+  private void addDeclaredMethods(
+      final List<MethodDeclaration> methods,
+      final ClassInfo classInfo,
+      final RemovedApiDetector.RemovedApiImportInfo removedApiImports,
+      final AnalysisContext context) {
+    for (final MethodDeclaration m : methods) {
+      final MethodInfo methodInfo = buildMethodInfo(m, removedApiImports);
+      final String methodKey = registerMethod(context, methodInfo, m, classInfo.getFqn());
+      dependencyGraphBuilder.collectCalledMethods(m, methodKey, classInfo.getFqn(), context);
+      classInfo.addMethod(methodInfo);
+    }
+  }
+
+  private void addConstructorsAsInit(
+      final List<ConstructorDeclaration> constructors,
+      final ClassInfo classInfo,
+      final RemovedApiDetector.RemovedApiImportInfo removedApiImports,
+      final AnalysisContext context) {
+    for (final ConstructorDeclaration cons : constructors) {
+      final MethodInfo methodInfo = buildMethodInfo(cons, removedApiImports);
+      // Spoon names constructors <init>; mirror that so the engines agree (see ResultMerger).
+      methodInfo.setName("<init>");
+      final String methodKey = registerMethod(context, methodInfo, cons, classInfo.getFqn());
+      dependencyGraphBuilder.collectCalledMethods(cons, methodKey, classInfo.getFqn(), context);
+      classInfo.addMethod(methodInfo);
+    }
+  }
+
+  private MethodInfo syntheticMethod(
+      final String name,
+      final String signature,
+      final String visibility,
+      final int parameterCount) {
+    return ResultBuilder.methodInfo()
+        .name(name)
+        .signature(signature)
+        .visibility(visibility)
+        .parameterCount(parameterCount)
+        .loc(0)
+        .calledMethods(new ArrayList<>())
+        .build();
+  }
+
+  private String resolveParameterTypeFqn(
+      final Parameter parameter, final String packageName, final List<String> imports) {
+    try {
+      return parameter.getType().resolve().describe();
+    } catch (Exception e) {
+      return deriveTypeFqn(parameter.getType().asString(), packageName, imports);
+    }
+  }
+
   private void analyzeConstructors(
       final ClassOrInterfaceDeclaration c,
       final ClassInfo classInfo,
       final RemovedApiDetector.RemovedApiImportInfo removedApiImports,
       final AnalysisContext context) {
-    c.getConstructors()
-        .forEach(
-            cons -> {
-              final MethodInfo methodInfo = buildMethodInfo(cons, removedApiImports);
-              final String methodKey =
-                  registerMethod(context, methodInfo, cons, classInfo.getFqn());
-              dependencyGraphBuilder.collectCalledMethods(
-                  cons, methodKey, classInfo.getFqn(), context);
-              classInfo.addMethod(methodInfo);
-            });
+    // Name constructors <init> (matching Spoon) so the two engines agree on a constructor's
+    // MethodId and the composite merge deduplicates instead of emitting it twice.
+    addConstructorsAsInit(c.getConstructors(), classInfo, removedApiImports, context);
   }
 
   private void analyzeMethods(

@@ -53,4 +53,12 @@ secrets.properties
 # Local workspace (not shared)
 # =========================
 CLAUDE.md
+AGENTS.md
+agent-understanding.md
+TODO.md
+docs-internal/
+sample-legacy-project/
+.codex/
+.serena
+.trash/
 

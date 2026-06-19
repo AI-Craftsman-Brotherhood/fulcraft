@@ -514,14 +514,15 @@ public class SpoonAnalyzer implements AnalysisPort {
       classInfo.setFilePath(MethodInfo.UNKNOWN);
       return null;
     }
-    final Path absoluteFilePath = file.toPath().toAbsolutePath();
-    final Path base = srcRootPath != null ? srcRootPath : rootPath;
-    if (absoluteFilePath.startsWith(base)) {
-      classInfo.setFilePath(base.relativize(absoluteFilePath).toString());
-      return base.relativize(absoluteFilePath);
-    }
-    classInfo.setFilePath(rootPath.relativize(absoluteFilePath).toString());
-    return rootPath.relativize(absoluteFilePath);
+    // Relativize against the project root so file paths match the JavaParser engine
+    // (project-root-relative, e.g. "src/main/java/com/foo/Bar.java"). Using the source root
+    // here previously stripped the prefix for Spoon-only types, which split report/document
+    // output across two directory trees for the same package.
+    final String relative =
+        com.craftsmanbro.fulcraft.infrastructure.parser.impl.common.AnalysisFilePaths
+            .toProjectRelative(file.toPath(), rootPath, srcRootPath);
+    classInfo.setFilePath(relative);
+    return Path.of(relative);
   }
 
   private List<String> collectImports(final CtType<?> type) {
@@ -555,11 +556,12 @@ public class SpoonAnalyzer implements AnalysisPort {
 
   private java.util.Collection<CtConstructor<?>> getConstructors(final CtType<?> type) {
     final List<CtConstructor<?>> constructors = new ArrayList<>();
-    if (type instanceof CtClass<?> ctClass) {
-      constructors.addAll(ctClass.getConstructors());
-    }
+    // CtEnum extends CtClass, so these branches must be mutually exclusive; otherwise an enum's
+    // constructors are added twice, producing duplicate <init> entries.
     if (type instanceof spoon.reflect.declaration.CtEnum<?> ctEnum) {
       constructors.addAll(ctEnum.getConstructors());
+    } else if (type instanceof CtClass<?> ctClass) {
+      constructors.addAll(ctClass.getConstructors());
     }
     return constructors;
   }
