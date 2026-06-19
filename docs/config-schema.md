@@ -80,7 +80,7 @@ The schema defines types, required fields, and allowed values so configuration d
 | Key | Type | Description |
 |---|---|---|
 | `engine` | string | Analysis engine. Accepts `javaparser`, `spoon`, `composite` (aliases: `all`, `both`). Defaults to `composite` when unset |
-| `language_level` | string | Java source level used by Spoon and JavaParser. Accepts `JAVA_8`..`JAVA_21`, `BLEEDING_EDGE`, `POPULAR`, `CURRENT` (case-insensitive). Defaults to `JAVA_21` (LTS) |
+| `language_level` | string | Java source level used by Spoon and JavaParser. Accepts `JAVA_8`..`JAVA_21`, `BLEEDING_EDGE`, and the aliases `POPULAR` (= `JAVA_17`) and `CURRENT` (= `JAVA_21`), resolved identically by both engines (case-insensitive). Defaults to `JAVA_21` (LTS) |
 | `source_root_mode` | enum | `AUTO`, `STRICT` |
 | `source_root_paths` | array of string | Source-root paths |
 | `source_charset` | string | Source encoding such as `UTF-8` |

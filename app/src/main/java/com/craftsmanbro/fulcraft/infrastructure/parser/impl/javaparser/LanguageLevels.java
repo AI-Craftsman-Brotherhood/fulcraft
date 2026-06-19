@@ -43,8 +43,11 @@ public final class LanguageLevels {
           Map.entry("JAVA20", LanguageLevel.JAVA_20),
           Map.entry("JAVA21", LanguageLevel.JAVA_21),
           Map.entry("BLEEDINGEDGE", LanguageLevel.BLEEDING_EDGE),
-          Map.entry("POPULAR", LanguageLevel.POPULAR),
-          Map.entry("CURRENT", LanguageLevel.CURRENT));
+          // POPULAR/CURRENT are pinned to concrete LTS levels (not JavaParser's version-dependent
+          // POPULAR/CURRENT constants) so they mean the same thing in the Spoon engine — see
+          // SpoonComplianceLevels.
+          Map.entry("POPULAR", LanguageLevel.JAVA_17),
+          Map.entry("CURRENT", LanguageLevel.JAVA_21));
 
   private LanguageLevels() {
     // utility

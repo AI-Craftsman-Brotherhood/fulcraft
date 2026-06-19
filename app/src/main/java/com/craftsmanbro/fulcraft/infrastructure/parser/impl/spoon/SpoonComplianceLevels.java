@@ -26,10 +26,12 @@ public final class SpoonComplianceLevels {
 
   private static final Pattern JAVA_NUMERIC = Pattern.compile("^JAVA_?(\\d{1,2})(?:_PREVIEW)?$");
 
+  // POPULAR/CURRENT are pinned to concrete LTS levels so they resolve identically in the
+  // JavaParser engine (see LanguageLevels): POPULAR = Java 17, CURRENT = Java 21.
   private static final Map<String, Integer> ALIASES =
       Map.of(
-          "POPULAR", 11,
-          "CURRENT", 16,
+          "POPULAR", 17,
+          "CURRENT", 21,
           "BLEEDINGEDGE", MAX_SUPPORTED);
 
   private SpoonComplianceLevels() {

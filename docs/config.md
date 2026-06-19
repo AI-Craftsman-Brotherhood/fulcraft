@@ -115,7 +115,7 @@ Controls analysis behavior.
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `engine` | string | `composite` | Analysis engine. Accepts `javaparser`, `spoon`, or `composite` (aliases: `all`, `both`). When unset, both engines run and results are merged |
-| `language_level` | string | `JAVA_21` | Java source level used by both JavaParser and Spoon. Accepts `JAVA_8`..`JAVA_21`, `BLEEDING_EDGE`, `POPULAR`, `CURRENT` (case-insensitive; underscores / spaces / hyphens accepted) |
+| `language_level` | string | `JAVA_21` | Java source level used by both JavaParser and Spoon. Accepts `JAVA_8`..`JAVA_21`, `BLEEDING_EDGE`, and the aliases `POPULAR` (= `JAVA_17`) and `CURRENT` (= `JAVA_21`) — both resolve identically across the two engines (case-insensitive; underscores / spaces / hyphens accepted) |
 | `source_root_mode` | enum | `AUTO` | `AUTO`, `STRICT` |
 | `source_root_paths` | array of string | `src/main/java`, `app/src/main/java` | Source roots |
 | `source_charset` | string | `UTF-8` | Source encoding |
