@@ -31,7 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `language_level` aliases `POPULAR` and `CURRENT` now resolve to the same concrete level in both engines (`POPULAR` = Java 17, `CURRENT` = Java 21), instead of differing between JavaParser and Spoon.
 
 ### Added (tests)
-- Smoke integration test for the composite analysis pipeline and an opt-in end-to-end CLI test for `ful analyze`, populating the previously-empty `integrationTest`/`e2eTest` source sets.
+- Smoke integration test for the composite analysis pipeline, populating the previously-empty `integrationTest` source set.
+- An opt-in end-to-end CLI suite (`e2eTest`, RUN_E2E/-Pe2e) driving the real `Main.run` against temp projects with a shared harness (`E2eTestBase`, `ProjectFixtures`, `ConfigBuilder`, `RunArtifacts`, `VisualReport`): covers `analyze`, `report` (visual + per-class HTML), `run` pipeline, engine/`--engine`/`language_level` selection, `init-ci`, `document` (markdown and the `--llm` path against a deterministic mock LLM server), CLI error/exit-code paths (unknown command/option, schema-invalid config, missing project root/run-id, invalid format), and a black-box smoke test that runs the packaged shadow JAR as a subprocess (validating SPI service files, resource bundles, and templates), with artifact-content assertions that regression-guard the engine-selection, record/enum, file-path, and merge-dedup fixes. Run output is redirected into a temp dir via the new opt-in `ful.runsRoot` system property honored by `BaseCliCommand` (default behavior unchanged).
 
 ### Removed
 - Internal-only documents from `docs/proposals/` that are not appropriate for the public repository.

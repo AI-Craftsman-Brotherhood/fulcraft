@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
 import picocli.CommandLine;
 
@@ -125,6 +126,33 @@ class BaseCliCommandTest {
                 .resolve("runs")
                 .normalize()
                 .toString());
+  }
+
+  @Test
+  void call_honorsRunsRootSystemPropertyOverride(@TempDir Path runsRootOverride) {
+    final String previous = System.getProperty("ful.runsRoot");
+    System.setProperty("ful.runsRoot", runsRootOverride.toString());
+    try {
+      TestCommand command =
+          new TestCommand() {
+            @Override
+            protected Config loadConfig(Path projectRoot) {
+              return new Config();
+            }
+          };
+
+      int exitCode = command.call();
+
+      assertThat(exitCode).isEqualTo(0);
+      assertThat(command.capturedConfig.get().getExecution().getLogsRoot())
+          .isEqualTo(runsRootOverride.toAbsolutePath().normalize().toString());
+    } finally {
+      if (previous == null) {
+        System.clearProperty("ful.runsRoot");
+      } else {
+        System.setProperty("ful.runsRoot", previous);
+      }
+    }
   }
 
   @Test
