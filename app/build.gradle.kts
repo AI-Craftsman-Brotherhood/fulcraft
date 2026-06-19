@@ -256,6 +256,20 @@ val e2eTest = tasks.register<Test>("e2eTest") {
     classpath = sourceSets["e2eTest"].runtimeClasspath
     useJUnitPlatform()
 
+    // Confine any artifacts written relative to the working directory to build/ so e2e runs never
+    // pollute the source tree. Individual tests redirect run output into their own @TempDir via the
+    // `ful.runsRoot` system property.
+    val e2eWorkDir = layout.buildDirectory.dir("e2e-work")
+    doFirst { e2eWorkDir.get().asFile.mkdirs() }
+    workingDir = e2eWorkDir.get().asFile
+
+    // The black-box smoke test runs the packaged fat JAR as a subprocess; build it first and expose
+    // its path so the test can locate it.
+    dependsOn(tasks.shadowJar)
+    val shadowJarFile = tasks.shadowJar.flatMap { it.archiveFile }
+    inputs.files(shadowJarFile)
+    doFirst { systemProperty("ful.jar", shadowJarFile.get().asFile.absolutePath) }
+
     // Only run if explicitly requested or specific env var is set
     // This prevents accidental execution of expensive/external tests
     onlyIf {

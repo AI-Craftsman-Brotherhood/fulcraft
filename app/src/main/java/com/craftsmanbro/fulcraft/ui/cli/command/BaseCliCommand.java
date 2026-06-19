@@ -33,6 +33,14 @@ import picocli.CommandLine.Spec;
  */
 public abstract class BaseCliCommand extends CommonCliOptionAccessors implements CliCommand {
 
+  /**
+   * Optional override for the runs root. When this system property is set and non-blank, run
+   * artifacts are written under it instead of the execution-directory default. Intended for
+   * end-to-end tests that need to redirect output into an isolated temp directory; production
+   * invocations never set it, so default behavior is unchanged.
+   */
+  private static final String RUNS_ROOT_PROPERTY = "ful.runsRoot";
+
   @ParentCommand protected CliContext main;
 
   @Spec protected CommandSpec spec;
@@ -200,6 +208,10 @@ public abstract class BaseCliCommand extends CommonCliOptionAccessors implements
   }
 
   private Path resolveExecutionLocalRunsRoot() {
+    final String override = System.getProperty(RUNS_ROOT_PROPERTY);
+    if (override != null && !override.isBlank()) {
+      return Path.of(override.trim()).toAbsolutePath().normalize();
+    }
     return Path.of(".").toAbsolutePath().normalize().resolve(".ful").resolve("runs").normalize();
   }
 
